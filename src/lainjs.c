@@ -49,7 +49,7 @@ void lainjs_init_main_js(duk_context *ctx) {
   duk_eval_string(ctx, mainjs);
 }
 
-bool lainjs_start(const char* src) {
+int lainjs_start(const char* src) {
   duk_context *ctx = duk_create_heap_default();
 
   struct env *env = (struct env*) malloc(sizeof(struct env));
@@ -61,7 +61,7 @@ bool lainjs_start(const char* src) {
 
   duk_eval_string(ctx, src);
 
-  bool more;
+  int more;
   do {
     more = uv_run(env->loop, UV_RUN_ONCE);
     if (!more) {

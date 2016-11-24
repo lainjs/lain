@@ -78,7 +78,7 @@ foreach(@filenames) {
     }
 
     print $out "0 \}\;\n";
-    print $out "const int $name\_l = $count;\n";
+    print $out "#define $name\_l $count\n";
 }
 
 my $native_struct = <<'END_NATIVE_STRUCT';

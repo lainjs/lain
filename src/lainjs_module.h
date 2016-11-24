@@ -23,17 +23,17 @@
 #define LAINJS_MODULE_H
 #include "lainjs_binding.h"
 
-enum lainjs_modules {
+typedef enum {
   MODULE_PROCESS,
   MODULE_CONSOLE,
   MODULE_TIMER,
   MODULE_COUNT,
-};
+} lainjs_modules;
 
-struct module {
+typedef struct {
   lainjs_modules kind;
   char module[20];
-};
+} module;
 
 void lainjs_init_modules(duk_context *ctx);
 module* lainjs_get_builtin_module(lainjs_modules kind);

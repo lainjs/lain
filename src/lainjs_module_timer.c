@@ -59,7 +59,7 @@ static void lainjs_on_timeout(struct timer *timer) {
 }
 
 static void lainjs_timer_timeout(uv_timer_t* handle) {
-  struct timer *timer = static_cast<struct timer*>(handle->data);
+  struct timer *timer = (struct timer*)handle->data;
   assert(&timer->handle == handle);
   if (timer)
     lainjs_on_timeout(timer);
@@ -75,7 +75,7 @@ int lainjs_start_timer(duk_context *ctx) {
 
   duk_push_this(ctx);
   duk_get_prop_string(ctx, -1, "##native##");
-  struct timer *timer = reinterpret_cast<struct timer *> (duk_get_pointer(ctx, -1));
+  struct timer *timer = (struct timer *)duk_get_pointer(ctx, -1);
   duk_pop(ctx);
 
   timer->obj = duk_get_heapptr(ctx, -1);
@@ -91,7 +91,7 @@ int lainjs_start_timer(duk_context *ctx) {
 int lainjs_stop_timer(duk_context *ctx) {
   duk_push_this(ctx);
   duk_get_prop_string(ctx, -1, "##native##");
-  struct timer *timer = reinterpret_cast<struct timer *> (duk_get_pointer(ctx, -1));
+  struct timer *timer = (struct timer *)duk_get_pointer(ctx, -1);
   duk_pop_2(ctx);
 
   if (!timer)

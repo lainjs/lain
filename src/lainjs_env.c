@@ -19,57 +19,23 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "lainjs_env.h"
 
-#include "lainjs_util.h"
+struct env *lainjs_get_envronment(duk_context *ctx) {
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, "_native_env");
+  struct env *env = (struct env *)duk_get_pointer(ctx, -1);
+  duk_pop(ctx);
+  duk_pop(ctx);
 
-char* lainjs_read_file(const char* path) {
-  FILE* file = fopen(path, "rb");
-  assert(file != NULL);
-
-  fseek(file, 0, SEEK_END);
-  size_t len = ftell(file);
-  fseek(file, 0, SEEK_SET);
-
-  char* buff = lainjs_alloc_char_buffer(len + 1);
-
-  size_t read = fread(buff, 1, len, file);
-  assert(read == len);
-
-  fclose(file);
-
-  return buff;
+  return env;
 }
 
+void lainjs_set_envronment(duk_context *ctx, struct env *env) {
+  if (lainjs_get_envronment(ctx)) return;
 
-char* lainjs_alloc_char_buffer(size_t size) {
-  return static_cast<char*>(malloc(size));
-}
-
-void lainjs_release_char_buffer(char* buffer) {
-  free(buffer);
-}
-
-char* lainjs_random_generate_id(int length) {
-  char *string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  size_t string_len = 26 * 2;
-  char *random_string;
-
-  random_string = (char*)malloc(sizeof(char) * (length +1));
-
-  if (!random_string)
-    return (char*)0;
-
-  unsigned int key = 0;
-
-  for (int n = 0;n < length;n++) {
-    key = rand() % string_len;
-    random_string[n] = string[key];
-  }
-
-  random_string[length] = '\0';
-
-  return random_string;
+  duk_push_global_stash(ctx);
+  duk_push_pointer(ctx, (void *)env);
+  duk_put_prop_string(ctx, -2, "_native_env");
+  duk_pop(ctx);
 }
