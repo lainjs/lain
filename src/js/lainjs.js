@@ -34,10 +34,7 @@
     function initNextTick() {
       var nextTickQueue = [];
 
-      process.nextTick = nextTick;
-      process._onNextTick = _onNextTick;
-
-      function _onNextTick() {
+      function onNextTick() {
         var callbacks = [];
         for (var i = 0; i < nextTickQueue.length; ++i) {
           callbacks.push(nextTickQueue[i]);
@@ -55,11 +52,13 @@
           nextTickQueue.push(callback);
         }
       }
+
+      process.nextTick = nextTick;
+      process.onNextTick = onNextTick;
     }
   };
 
   this.require = function(id) {
-    console.log('Not yet support it.');
     return undefined;
   };
 

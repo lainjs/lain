@@ -22,5 +22,5 @@
 #ifndef LAINJS_BINDING_H
 #define LAINJS_BINDING_H
 #include <stdio.h>
-#include "v7.h"
+#include "duktape.h"
 #endif

@@ -4,15 +4,16 @@
     ],
     "targets": [
        {
-            "target_name": "v7",
-            "product_name": "v7",
+            "target_name": "duktape",
+            "product_name": "duktape",
             "type": "static_library",
             "sources": [
-                "third_party/v7/v7.h",
-                "third_party/v7/v7.c"
+                "third_party/duktape/duktape.h",
+                "third_party/duktape/duktape.c",
+                "third_party/duktape/duk_config.h",
             ],
             'direct_dependent_settings': {
-              'include_dirs': [ 'third_party/v7' ],
+              'include_dirs': [ 'third_party/duktape' ],
             }
         },
         {
@@ -40,7 +41,7 @@
                 "src"
             ],
             "dependencies": [
-                "v7",
+                "duktape",
                 "third_party/libuv/uv.gyp:libuv"
             ],
         }

@@ -24,31 +24,22 @@
 #include "lainjs_module.h"
 #include "lainjs_module_process.h"
 
-void lainjs_on_next_tick(struct v7 *v) {
+void lainjs_on_next_tick(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-  assert(v7_is_object(module->module));
+  duk_push_global_object(ctx);
+  duk_get_prop_string(ctx, -1, module->module);
+  duk_get_prop_string(ctx, -1, "onNextTick");
 
-  v7_val_t callee_object = v7_get(v, module->module, "_onNextTick", ~0);
-  if(v7_is_callable(v, callee_object)) {
-    v7_val_t result;
-    if (v7_apply(v, callee_object, V7_UNDEFINED, V7_UNDEFINED, &result) != V7_OK) {
-      // TODO: We need log system to print information.
-      printf("ERR : lainjs_on_timeout\n");
-    } 
-  }
+  if (duk_is_callable(ctx, -1))
+    duk_call(ctx, 0);
+
+  duk_pop_2(ctx);
 }
 
-void lainjs_request_callback(struct v7 *v, v7_val_t callback, v7_val_t _this, v7_val_t args, v7_val_t *result) {
-  if (v7_apply(v, callback, _this, V7_UNDEFINED, result) != V7_OK) {
-    // TODO: We need log system to print information.
-    printf("ERR : lainjs_on_timeout\n");
-  }
-
-  lainjs_on_next_tick(v);
-}
-
-void lainjs_init_process_module(struct v7 *v) {
+void lainjs_init_process_module(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-  assert(v7_is_object(module->module));
-  v7_def(v, v7_get_global(v), "process", ~0, V7_DESC_ENUMERABLE(0), module->module);
+  duk_push_global_object(ctx);
+  duk_push_object(ctx);
+  duk_put_prop_string(ctx, -2, module->module);
+  duk_pop(ctx);
 }

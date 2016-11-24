@@ -34,52 +34,43 @@
 #include "lainjs_util.h"
 #include "uv.h"
 
-extern struct env *_env;
-
-void lainjs_release_v7(struct v7 *v) {
-  v7_destroy(v);
+void lainjs_release_js_context(duk_context *ctx) {
+  duk_destroy_heap(ctx);
 }
 
-void lainjs_setup_modules(struct v7 *v) {
-  lainjs_init_modules(v);
-  lainjs_init_process_module(v);
-  lainjs_init_console_module(v);
-  lainjs_init_timer_module(v);
+void lainjs_setup_modules(duk_context *ctx) {
+  lainjs_init_modules(ctx);
+  lainjs_init_process_module(ctx);
+  lainjs_init_console_module(ctx);
+  lainjs_init_timer_module(ctx);
 }
 
-void lainjs_init_main_js(struct v7 *v) {
-  v7_val_t result;
-  if (v7_exec(v, mainjs, &result) != V7_OK) {
-    v7_print_error(stderr, v, "Evaluation error", result);
-  }
+void lainjs_init_main_js(duk_context *ctx) {
+  duk_eval_string(ctx, mainjs);
 }
 
 bool lainjs_start(const char* src) {
-  // Create v7 context.
-  struct v7 *v7 = v7_create();
+  duk_context *ctx = duk_create_heap_default();
+
   struct env *env = (struct env*) malloc(sizeof(struct env));
   env->loop = uv_default_loop();
-  lainjs_set_envronment(v7, env);
+  lainjs_set_envronment(ctx, env);
 
-  v7_val_t result;
-  // Init Modules.
-  lainjs_setup_modules(v7);
-  lainjs_init_main_js(v7);
+  lainjs_setup_modules(ctx);
+  lainjs_init_main_js(ctx);
 
-  if (v7_exec(v7, src, &result) != V7_OK) {
-    v7_print_error(stderr, v7, "Evaluation error", result);
-  }
+  duk_eval_string(ctx, src);
 
   bool more;
   do {
     more = uv_run(env->loop, UV_RUN_ONCE);
     if (!more) {
-      lainjs_on_next_tick(v7);
+      lainjs_on_next_tick(ctx);
       more = uv_loop_alive(env->loop);
     }
   } while (more);
 
-  lainjs_release_v7(v7);
+  lainjs_release_js_context(ctx);
   return 1;
 }
 

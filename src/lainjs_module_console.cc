@@ -26,24 +26,29 @@
 #include "lainjs_module.h"
 #include "lainjs_module_console.h"
 
-static enum v7_err print(struct v7 *v, v7_val_t *res, FILE* out_f) {
-  unsigned long args_lens = v7_argc(v);
+static void print(duk_context *ctx, FILE* out_f) {
+  unsigned long args_lens = duk_get_top(ctx);
   for (register int index = 0; index < args_lens; index++) {
-    v7_val_t arg = v7_arg(v, index);
-    size_t n;
-    fprintf(out_f, "%s ", v7_get_string(v, &arg, &n));
+    fprintf(out_f, "%s ", duk_to_string(ctx, index));
   }
   fprintf(out_f, "\n");
-  return V7_OK;
 }
 
-static enum v7_err log(struct v7 *v, v7_val_t *res) {
-  return print(v, res, stdout);
+int log(duk_context *ctx) {
+  print(ctx, stdout);
+  return 0;
 }
 
-void lainjs_init_console_module(struct v7 *v) {
+void lainjs_init_console_module(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSOLE);
-  assert(v7_is_object(module->module));
-  v7_def(v, v7_get_global(v), "console", ~0, V7_DESC_ENUMERABLE(0), module->module);
-  v7_set_method(v, module->module, "log", &log);
+  duk_push_global_object(ctx);
+  duk_push_object(ctx);
+  duk_put_prop_string(ctx, -2, module->module);
+  duk_pop(ctx);
+
+  duk_push_global_object(ctx);
+  duk_get_prop_string(ctx, -1, module->module);
+  duk_push_c_function(ctx, log, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "log");
+  duk_pop_2(ctx);
 }

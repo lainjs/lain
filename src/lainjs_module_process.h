@@ -22,7 +22,8 @@
 #ifndef LAINJS_MODULE_PROCESS_H
 #define LAINJS_MODULE_PROCESS_H
 #include "lainjs_binding.h"
-void lainjs_on_next_tick(struct v7 *v);
-void lainjs_request_callback(struct v7 *v, v7_val_t callback, v7_val_t _this, v7_val_t args, v7_val_t *result);
-void lainjs_init_process_module(struct v7 *v);
+
+void lainjs_on_next_tick(duk_context *ctx);
+//void lainjs_request_callback(struct v7 *v, v7_val_t callback, v7_val_t _this, v7_val_t args, v7_val_t *result);
+void lainjs_init_process_module(duk_context *ctx);
 #endif

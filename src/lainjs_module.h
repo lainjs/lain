@@ -32,9 +32,9 @@ enum lainjs_modules {
 
 struct module {
   lainjs_modules kind;
-  v7_val_t module;
+  char module[20];
 };
 
-void lainjs_init_modules(struct v7 *v);
+void lainjs_init_modules(duk_context *ctx);
 module* lainjs_get_builtin_module(lainjs_modules kind);
 #endif

@@ -51,3 +51,25 @@ char* lainjs_alloc_char_buffer(size_t size) {
 void lainjs_release_char_buffer(char* buffer) {
   free(buffer);
 }
+
+char* lainjs_random_generate_id(int length) {
+  char *string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  size_t string_len = 26 * 2;
+  char *random_string;
+
+  random_string = (char*)malloc(sizeof(char) * (length +1));
+
+  if (!random_string)
+    return (char*)0;
+
+  unsigned int key = 0;
+
+  for (int n = 0;n < length;n++) {
+    key = rand() % string_len;
+    random_string[n] = string[key];
+  }
+
+  random_string[length] = '\0';
+
+  return random_string;
+}

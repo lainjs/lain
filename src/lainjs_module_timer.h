@@ -23,5 +23,5 @@
 #define LAINJS_MODULE_TIMER_H
 #include "lainjs_binding.h"
 
-void lainjs_init_timer_module(struct v7 *v);
+void lainjs_init_timer_module(duk_context *ctx);
 #endif

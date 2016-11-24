@@ -21,16 +21,21 @@
 
 #include "lainjs_env.h"
 
-struct env *lainjs_get_envronment(v7 *v) {
-  v7_val_t native_object = v7_get(v, v7_get_global(v), "_native_env", ~0);
-  if (!(v7_is_foreign(native_object))) return NULL;
+struct env *lainjs_get_envronment(duk_context *ctx) {
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, "_native_env");
+  struct env *env = reinterpret_cast<struct env *> (duk_get_pointer(ctx, -1));
+  duk_pop(ctx);
+  duk_pop(ctx);
 
-  return reinterpret_cast<struct env *>(v7_get_ptr(v, native_object));;
+  return env;
 }
 
-void lainjs_set_envronment(v7 *v, struct env *env) {
-  if (lainjs_get_envronment(v)) return;
+void lainjs_set_envronment(duk_context *ctx, struct env *env) {
+  if (lainjs_get_envronment(ctx)) return;
 
-  v7_def(v, v7_get_global(v), "_native_env", ~0, V7_DESC_ENUMERABLE(0),
-         v7_mk_foreign(v, (void *)env));
+  duk_push_global_stash(ctx);
+  duk_push_pointer(ctx, (void *)env);
+  duk_put_prop_string(ctx, -2, "_native_env");
+  duk_pop(ctx);
 }

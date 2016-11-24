@@ -31,29 +31,31 @@
 
 #include "uv.h"
 
-extern struct env *_env;
-
 struct timer {
   uv_timer_t handle;
-  v7_val_t obj;
-  v7_val_t callback;
+  void* obj;
+  void* callback;
   int64_t timeout;
   int64_t repeat;
-  v7* v;
+  duk_context *ctx;
 };
 
-//void lainjs_request_callback(struct v7 *v, v7_val_t callback, v7_val_t _this, v7_val_t args)
 static void lainjs_on_timeout(struct timer *timer) {
-  if (v7_is_callable(timer->v, timer->callback)) {
+  duk_context *ctx = timer->ctx;
+  duk_push_heapptr(ctx, timer->callback);
+  if (duk_is_callable(ctx, -1)) {
+    duk_push_heapptr(ctx, timer->obj);
+    duk_call_method(ctx, 0);
 
-    v7_val_t result;
-    lainjs_request_callback(timer->v, timer->callback, timer->obj, V7_UNDEFINED, &result);
-
+    //FIXME : move to process module.
+    lainjs_on_next_tick(ctx);
     if (!timer->repeat)
       free(timer);
   } else {
     free(timer);
   }
+
+  duk_pop(ctx);
 }
 
 static void lainjs_timer_timeout(uv_timer_t* handle) {
@@ -63,86 +65,74 @@ static void lainjs_timer_timeout(uv_timer_t* handle) {
     lainjs_on_timeout(timer);
 }
 
-static enum v7_err lainjs_construct_timer(struct v7 *v, v7_val_t *res) {
-  v7_val_t _this = v7_get_this(v);
-  struct timer *timer = (struct timer*) malloc(sizeof(struct timer));
-  if (!timer) {
-    // TODO: We need log system to print information.
-    printf("ERR : out of memory\n");
-    return V7_EXEC_EXCEPTION;
-  }
-
-  uv_timer_init(lainjs_get_envronment(v)->loop, &(timer->handle));
-  timer->handle.data = timer;
-  timer->v = v;
-
-  // Bind native instance.
-  v7_def(v, _this, "_native", ~0, V7_DESC_ENUMERABLE(0),
-         v7_mk_foreign(v, (void *)timer));
-
-  return V7_OK;
-}
-
-static enum v7_err lainjs_start_timer(struct v7 *v, v7_val_t *res) {
-  // Check argument
-  unsigned long args_lens = v7_argc(v);
+int lainjs_start_timer(duk_context *ctx) {
+  unsigned long args_lens = duk_get_top(ctx);
   assert(args_lens >= 3);
-  assert(v7_is_callable(v, v7_arg(v, 2)));
+  if (!(args_lens >= 3)) return 0;
+  if (!duk_is_function(ctx, 2)) return 0;
+  double timeout = duk_to_number(ctx, 0);
+  double repeat = duk_to_number(ctx, 1);
 
-  if (!(args_lens >= 3)) return V7_OK;
-  if (!(v7_is_callable(v, v7_arg(v, 2)))) return V7_OK;
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "##native##");
+  struct timer *timer = reinterpret_cast<struct timer *> (duk_get_pointer(ctx, -1));
+  duk_pop(ctx);
 
-  v7_val_t _this = v7_get_this(v);
-  int64_t timeout = v7_get_int(v, v7_arg(v, 0));
-  int64_t repeat = v7_get_int(v, v7_arg(v, 1));
-
-  v7_val_t native_object = v7_get(v, _this, "_native", ~0); 
-  assert(v7_is_foreign(native_object));
-
-  if (!(v7_is_foreign(native_object))) return V7_OK;
-
-  struct timer *timer = reinterpret_cast<struct timer *>(v7_get_ptr(v, native_object));
-
+  timer->obj = duk_get_heapptr(ctx, -1);
+  timer->callback = duk_get_heapptr(ctx, 2);
   timer->timeout = timeout;
   timer->repeat = repeat;
-  timer->obj = _this;
-  timer->callback = v7_arg(v, 2);
-
-  int err;
-  err = uv_timer_start(&timer->handle, lainjs_timer_timeout,
+  int err = uv_timer_start(&timer->handle, lainjs_timer_timeout,
                        timeout, repeat);
-
-  return V7_OK;
+  duk_pop(ctx);
+  return 0;
 }
 
-static enum v7_err lainjs_stop_timer(struct v7 *v, v7_val_t *res) {
-  v7_val_t _this = v7_get_this(v);
+int lainjs_stop_timer(duk_context *ctx) {
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "##native##");
+  struct timer *timer = reinterpret_cast<struct timer *> (duk_get_pointer(ctx, -1));
+  duk_pop_2(ctx);
 
-  v7_val_t native_object = v7_get(v, _this, "_native", ~0);
-  assert(v7_is_foreign(native_object));
-
-  if (!(v7_is_foreign(native_object))) return V7_OK;
-
-  struct timer *timer = reinterpret_cast<struct timer *>(v7_get_ptr(v, native_object));
-  if (!timer) {
-    // TODO: We need log system to print information.
+  if (!timer)
     printf("ERR : invalid timer\n");
-  }
 
   int err = uv_timer_stop(&timer->handle);
 
   free(timer);
-
-  return V7_OK;
+  return 0;
 }
 
-void lainjs_init_timer_module(struct v7 *v) {
-  module* module = lainjs_get_builtin_module(MODULE_TIMER);
-  assert(v7_is_object(module->module));
+int lainjs_construct_timer(duk_context *ctx) {
+  if (!duk_is_constructor_call(ctx))
+    return 0;
 
-  v7_val_t ctor_func = v7_mk_function_with_proto(v, lainjs_construct_timer, module->module);
-  
-  v7_set(v, v7_get_global(v), "Timer", ~0, ctor_func);
-  v7_set_method(v, module->module, "start", &lainjs_start_timer);
-  v7_set_method(v, module->module, "stop", &lainjs_stop_timer);
+  duk_push_object(ctx);
+  duk_push_c_function(ctx, lainjs_start_timer, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "start");
+  duk_push_c_function(ctx, lainjs_stop_timer, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "stop");
+
+  struct timer *timer = (struct timer*) malloc(sizeof(struct timer));
+  if (!timer) {
+    duk_pop(ctx);
+    return 0;
+  }
+
+  uv_timer_init(lainjs_get_envronment(ctx)->loop, &(timer->handle));
+  timer->handle.data = timer;
+  timer->ctx = ctx;
+  duk_push_pointer(ctx, (void *)timer);
+  duk_put_prop_string(ctx, -2, "##native##");
+
+  return 1;
+}
+
+void lainjs_init_timer_module(duk_context *ctx) {
+  module* module = lainjs_get_builtin_module(MODULE_TIMER);
+
+  duk_push_global_object(ctx);
+  duk_push_c_function(ctx, lainjs_construct_timer, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, module->module);
+  duk_pop(ctx);
 }

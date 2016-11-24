@@ -24,4 +24,5 @@
 char* lainjs_read_file(const char* path);
 char* lainjs_alloc_char_buffer(size_t size);
 void lainjs_release_char_buffer(char* buffer);
+char* lainjs_random_generate_id(int length);
 #endif

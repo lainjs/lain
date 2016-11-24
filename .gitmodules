@@ -1,6 +1,6 @@
 [submodule "third_party/libuv"]
 	path = third_party/libuv
 	url = https://github.com/Samsung/libuv.git
-[submodule "third_party/v7"]
-	path = third_party/v7
-	url = https://github.com/ProjectNavi/v7.git
+[submodule "third_party/duktape"]
+	path = third_party/duktape
+	url = https://github.com/lainjs/duktape.git

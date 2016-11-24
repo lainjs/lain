@@ -21,13 +21,13 @@
 
 #ifndef LAINJS_ENV_H
 #define LAINJS_ENV_H
+#include "duktape.h"
 #include "uv.h"
-#include "v7.h"
 
 struct env {
   uv_loop_t* loop;
 };
 
-struct env *lainjs_get_envronment(v7 *v);
-void lainjs_set_envronment(v7 *v, struct env *env);
+struct env *lainjs_get_envronment(duk_context *ctx);
+void lainjs_set_envronment(duk_context *ctx, struct env *env);
 #endif

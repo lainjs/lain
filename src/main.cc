@@ -20,7 +20,6 @@
  */
 
 #include <stdio.h>
-
 extern int lainjs_entry(int argc, char** argv);
 
 int main(int argc, char** argv) {
