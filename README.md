@@ -8,7 +8,7 @@
 2. $./build/build
 
 ### How to Run
-1. $./out/Default/lainjs <javascript application file>
+1. $./out/Default/lainjs "javascript application file"
    (For example, ./out/Default/lainjs ./test/hello.js)
 
 ## Lain.js license
