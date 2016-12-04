@@ -41,8 +41,6 @@ void lainjs_release_js_context(duk_context *ctx) {
 void lainjs_setup_modules(duk_context *ctx) {
   lainjs_init_modules(ctx);
   lainjs_init_process_module(ctx);
-  lainjs_init_console_module(ctx);
-  lainjs_init_timer_module(ctx);
 }
 
 void lainjs_init_main_js(duk_context *ctx) {

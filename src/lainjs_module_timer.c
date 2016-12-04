@@ -33,6 +33,7 @@
 
 struct timer {
   uv_timer_t handle;
+  // FIXME
   void* obj;
   void* callback;
   int64_t timeout;
@@ -131,8 +132,9 @@ int lainjs_construct_timer(duk_context *ctx) {
 void lainjs_init_timer_module(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TIMER);
 
-  duk_push_global_object(ctx);
+  duk_push_global_stash(ctx);
   duk_push_c_function(ctx, lainjs_construct_timer, DUK_VARARGS);
+  module->obj = duk_get_heapptr(ctx, -1);
   duk_put_prop_string(ctx, -2, module->module);
   duk_pop(ctx);
 }

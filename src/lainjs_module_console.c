@@ -28,7 +28,8 @@
 
 static void print(duk_context *ctx, FILE* out_f) {
   unsigned long args_lens = duk_get_top(ctx);
-  for (register int index = 0; index < args_lens; index++) {
+  register int index;
+  for (index = 0; index < args_lens; index++) {
     fprintf(out_f, "%s ", duk_to_string(ctx, index));
   }
   fprintf(out_f, "\n");
@@ -41,14 +42,15 @@ int lainjs_console_binding_log(duk_context *ctx) {
 
 void lainjs_init_console_module(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSOLE);
-  duk_push_global_object(ctx);
+
+  duk_push_global_stash(ctx);
   duk_push_object(ctx);
+  module->obj = duk_get_heapptr(ctx, -1);
   duk_put_prop_string(ctx, -2, module->module);
   duk_pop(ctx);
 
-  duk_push_global_object(ctx);
-  duk_get_prop_string(ctx, -1, module->module);
+  duk_push_heapptr(ctx, module->obj);
   duk_push_c_function(ctx, lainjs_console_binding_log, DUK_VARARGS);
   duk_put_prop_string(ctx, -2, "log");
-  duk_pop_2(ctx);
+  duk_pop(ctx);
 }

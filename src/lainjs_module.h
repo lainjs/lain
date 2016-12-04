@@ -30,9 +30,14 @@ typedef enum {
   MODULE_COUNT,
 } lainjs_modules;
 
+typedef void (*register_function)(duk_context *ctx);
+
 typedef struct {
   lainjs_modules kind;
   char module[20];
+  // TODO: FIXUP
+  void* obj;
+  register_function register_func;
 } module;
 
 void lainjs_init_modules(duk_context *ctx);

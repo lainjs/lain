@@ -64,7 +64,8 @@ char* lainjs_random_generate_id(int length) {
 
   unsigned int key = 0;
 
-  for (int n = 0;n < length;n++) {
+  int n;
+  for (n = 0; n < length; n++) {
     key = rand() % string_len;
     random_string[n] = string[key];
   }

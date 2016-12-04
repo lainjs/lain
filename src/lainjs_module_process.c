@@ -24,6 +24,29 @@
 #include "lainjs_module.h"
 #include "lainjs_module_process.h"
 
+int lainjs_process_binding_binding(duk_context *ctx) {
+  assert(duk_get_top(ctx) == 1);
+  int kind = (int)duk_to_number(ctx, 0);
+  module* module = lainjs_get_builtin_module(kind);
+
+  if (!module->obj)
+    if (module->register_func)
+      module->register_func(ctx);
+    else  // FIXME
+      return 0;
+
+  duk_push_heapptr(ctx, module->obj);
+  return 1;
+}
+
+int lainjs_process_binding_compile(duk_context *ctx) {
+  return 0;
+}
+
+int lainjs_process_binding_read_source(duk_context *ctx) {
+  return 0;
+}
+
 void lainjs_on_next_tick(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
   duk_push_global_object(ctx);
@@ -38,8 +61,32 @@ void lainjs_on_next_tick(duk_context *ctx) {
 
 void lainjs_init_process_module(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-  duk_push_global_object(ctx);
-  duk_push_object(ctx);
-  duk_put_prop_string(ctx, -2, module->module);
-  duk_pop(ctx);
+
+  if (!module->obj) {
+    duk_push_global_stash(ctx);
+    duk_push_object(ctx);
+    module->obj = duk_get_heapptr(ctx, -1);
+    duk_put_prop_string(ctx, -2, module->module);
+    duk_pop(ctx);
+
+    duk_push_heapptr(ctx, module->obj);
+    duk_push_c_function(ctx, lainjs_process_binding_binding, DUK_VARARGS);
+    duk_put_prop_string(ctx, -2, "binding");
+    duk_pop(ctx);
+
+    duk_push_heapptr(ctx, module->obj);
+    duk_push_c_function(ctx, lainjs_process_binding_compile, DUK_VARARGS);
+    duk_put_prop_string(ctx, -2, "compile");
+    duk_pop(ctx);
+
+    duk_push_heapptr(ctx, module->obj);
+    duk_push_c_function(ctx, lainjs_process_binding_read_source, DUK_VARARGS);
+    duk_put_prop_string(ctx, -2, "readSource");
+    duk_pop(ctx);
+
+    duk_push_global_object(ctx);
+    duk_push_heapptr(ctx, module->obj);
+    duk_put_prop_string(ctx, -2, module->module);
+    duk_pop(ctx);
+  }
 }

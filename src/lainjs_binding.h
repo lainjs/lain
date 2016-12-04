@@ -23,4 +23,6 @@
 #define LAINJS_BINDING_H
 #include <stdio.h>
 #include "duktape.h"
+
+// TODO: Make binding utils.
 #endif

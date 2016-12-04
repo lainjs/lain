@@ -1,3 +1,9 @@
+var MODULE_PROCESS = 0;
+var MODULE_CONSOLE = 1;
+this.global = this;
+var global = this.global;
+global.console = process.binding(MODULE_CONSOLE);
+
 console.log('LainJS Process NextTick Test ...');
 
 var index = 0;
