@@ -28,6 +28,7 @@
 #include "lainjs_module.h"
 #include "lainjs_module_process.h"
 #include "lainjs_module_timer.h"
+#include "lainjs_util.h"
 
 #include "uv.h"
 
@@ -131,7 +132,7 @@ int lainjs_construct_timer(duk_context *ctx) {
   return 1;
 }
 
-void lainjs_init_timer_module(duk_context *ctx) {
+void lainjs_init_timer(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TIMER);
 
   duk_push_global_stash(ctx);

@@ -28,21 +28,15 @@
 
 static module _modules[MODULE_COUNT];
 
+#define INIT_MODULE(upper, lower, string) \
+  _modules[MODULE_ ## upper].kind = MODULE_ ## upper; \
+  _modules[MODULE_ ## upper].register_func = lainjs_init_ ## lower; \
+  strcpy(_modules[MODULE_ ## upper].module, string);
+
 void lainjs_init_modules(duk_context *ctx) {
-  // MODULE_CONSOLE
-  _modules[MODULE_CONSOLE].kind = MODULE_CONSOLE;
-  _modules[MODULE_CONSOLE].register_func = lainjs_init_console_module;
-  strcpy(_modules[MODULE_CONSOLE].module, "console");
-
-  // MODULE_PROCESS
-  _modules[MODULE_PROCESS].kind = MODULE_PROCESS;
-  _modules[MODULE_PROCESS].register_func = lainjs_init_process_module;
-  strcpy(_modules[MODULE_PROCESS].module, "process");
-
-  // MODULE_TIMER
-  _modules[MODULE_TIMER].kind = MODULE_TIMER;
-  _modules[MODULE_TIMER].register_func = lainjs_init_timer_module;
-  strcpy(_modules[MODULE_TIMER].module, "Timer");
+  INIT_MODULE(CONSOLE, console, "console")
+  INIT_MODULE(PROCESS, process, "process")
+  INIT_MODULE(TIMER, timer, "Timer")
 }
 
 module* lainjs_get_builtin_module(lainjs_modules kind) {

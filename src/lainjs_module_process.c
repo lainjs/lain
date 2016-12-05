@@ -74,7 +74,7 @@ void lainjs_on_next_tick(duk_context *ctx) {
   }
 }
 
-void lainjs_init_process_module(duk_context *ctx) {
+void lainjs_init_process(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
 
   duk_push_global_stash(ctx);

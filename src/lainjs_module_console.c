@@ -40,7 +40,7 @@ int lainjs_console_binding_log(duk_context *ctx) {
   return 0;
 }
 
-void lainjs_init_console_module(duk_context *ctx) {
+void lainjs_init_console(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSOLE);
 
   duk_push_global_stash(ctx);

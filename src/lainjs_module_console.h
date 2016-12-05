@@ -22,5 +22,5 @@
 #ifndef LAINJS_MODULE_CONSOLE_H
 #define LAINJS_MODULE_CONSOLE_H
 #include "lainjs_binding.h"
-void lainjs_init_console_module(duk_context *ctx);
+void lainjs_init_console(duk_context *ctx);
 #endif
