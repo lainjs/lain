@@ -35,8 +35,6 @@ typedef void (*register_function)(duk_context *ctx);
 typedef struct {
   lainjs_modules kind;
   char module[20];
-  // TODO: FIXUP
-  void* obj;
   register_function register_func;
 } module;
 

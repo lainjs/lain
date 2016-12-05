@@ -45,12 +45,12 @@ void lainjs_init_console_module(duk_context *ctx) {
 
   duk_push_global_stash(ctx);
   duk_push_object(ctx);
-  module->obj = duk_get_heapptr(ctx, -1);
   duk_put_prop_string(ctx, -2, module->module);
   duk_pop(ctx);
 
-  duk_push_heapptr(ctx, module->obj);
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, module->module);
   duk_push_c_function(ctx, lainjs_console_binding_log, DUK_VARARGS);
   duk_put_prop_string(ctx, -2, "log");
-  duk_pop(ctx);
+  duk_pop_2(ctx);
 }
