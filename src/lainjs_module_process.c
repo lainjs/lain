@@ -53,12 +53,11 @@ void lainjs_on_next_tick(duk_context *ctx) {
     duk_push_global_object(ctx);
     duk_get_prop_string(ctx, -1, module->module);
     duk_get_prop_string(ctx, -1, "onNextTick");
-    duk_push_undefined(ctx);
-    if (duk_is_callable(ctx, -1)) {
-      duk_call_method(ctx, 0);
-    }
 
-    duk_pop_3(ctx);
+    if (duk_is_callable(ctx, -1))
+      duk_call(ctx, 0);
+
+    duk_pop_2(ctx);
   }
 
   {
@@ -78,37 +77,29 @@ void lainjs_init_process(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
 
   duk_push_global_stash(ctx);
-  if (!duk_has_prop_string(ctx, -1, module->module)) {
-    duk_push_global_stash(ctx);
-    duk_push_object(ctx);
-    duk_put_prop_string(ctx, -2, module->module);
+  if (duk_has_prop_string(ctx, -1, module->module)) {
     duk_pop(ctx);
-
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, module->module);
-    duk_push_c_function(ctx, lainjs_process_binding_binding, DUK_VARARGS);
-    duk_put_prop_string(ctx, -2, "binding");
-    duk_pop_2(ctx);
-
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, module->module);
-    duk_push_c_function(ctx, lainjs_process_binding_compile, DUK_VARARGS);
-    duk_put_prop_string(ctx, -2, "compile");
-    duk_pop_2(ctx);
-
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, module->module);
-    duk_push_c_function(ctx, lainjs_process_binding_read_source, DUK_VARARGS);
-    duk_put_prop_string(ctx, -2, "readSource");
-    duk_pop_2(ctx);
-
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, module->module);
-    duk_push_global_object(ctx);
-    duk_dup(ctx, -2);
-    duk_put_prop_string(ctx, -2, module->module);
-    duk_pop_3(ctx);
   }
-
   duk_pop(ctx);
+
+  STORE_OBJECT_ON_STASH(ctx, module->module)
+
+  FUNC_BINDING_WITH_STASH(ctx, module->module,
+                          lainjs_process_binding_binding,
+                          "binding")
+
+  FUNC_BINDING_WITH_STASH(ctx, module->module,
+                          lainjs_process_binding_compile,
+                          "compile")
+
+  FUNC_BINDING_WITH_STASH(ctx, module->module,
+                          lainjs_process_binding_read_source,
+                          "readSource")
+
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, module->module);
+  duk_push_global_object(ctx);
+  duk_dup(ctx, -2);
+  duk_put_prop_string(ctx, -2, module->module);
+  duk_pop_3(ctx);
 }

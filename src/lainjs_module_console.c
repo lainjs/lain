@@ -43,14 +43,9 @@ int lainjs_console_binding_log(duk_context *ctx) {
 void lainjs_init_console(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSOLE);
 
-  duk_push_global_stash(ctx);
-  duk_push_object(ctx);
-  duk_put_prop_string(ctx, -2, module->module);
-  duk_pop(ctx);
+  STORE_OBJECT_ON_STASH(ctx, module->module)
 
-  duk_push_global_stash(ctx);
-  duk_get_prop_string(ctx, -1, module->module);
-  duk_push_c_function(ctx, lainjs_console_binding_log, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, "log");
-  duk_pop_2(ctx);
+  FUNC_BINDING_WITH_STASH(ctx, module->module,
+                          lainjs_console_binding_log,
+                          "log")
 }

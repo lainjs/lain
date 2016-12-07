@@ -34,7 +34,7 @@
 
 struct timer {
   uv_timer_t handle;
-  void* obj; // FIXME
+  void* obj;
   int64_t timeout;
   int64_t repeat;
   duk_context *ctx;
@@ -49,7 +49,6 @@ static void lainjs_on_timeout(struct timer *timer) {
     duk_dup(ctx, -2);
     duk_call_method(ctx, 0);
 
-    //FIXME : move to process module.
     lainjs_on_next_tick(ctx);
     if (!timer->repeat)
       free(timer);
@@ -103,6 +102,7 @@ int lainjs_stop_timer(duk_context *ctx) {
 
   int err = uv_timer_stop(&timer->handle);
 
+  duk_push_heapptr(ctx, timer->obj);
   free(timer);
   return 0;
 }
@@ -111,17 +111,17 @@ int lainjs_construct_timer(duk_context *ctx) {
   if (!duk_is_constructor_call(ctx))
     return 0;
 
-  duk_push_object(ctx);
-  duk_push_c_function(ctx, lainjs_start_timer, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, "start");
-  duk_push_c_function(ctx, lainjs_stop_timer, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, "stop");
-
   struct timer *timer = (struct timer*) malloc(sizeof(struct timer));
   if (!timer) {
     duk_pop(ctx);
     return 0;
   }
+
+  duk_push_object(ctx);
+  duk_push_c_function(ctx, lainjs_start_timer, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "start");
+  duk_push_c_function(ctx, lainjs_stop_timer, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "stop");
 
   uv_timer_init(lainjs_get_envronment(ctx)->loop, &(timer->handle));
   timer->handle.data = timer;
@@ -135,8 +135,5 @@ int lainjs_construct_timer(duk_context *ctx) {
 void lainjs_init_timer(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TIMER);
 
-  duk_push_global_stash(ctx);
-  duk_push_c_function(ctx, lainjs_construct_timer, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, module->module);
-  duk_pop(ctx);
+  STORE_FUNC_ON_STASH(ctx, lainjs_construct_timer, module->module)
 }
