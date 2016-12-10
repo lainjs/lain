@@ -2,14 +2,11 @@
 
 ## Setting up your environment
 ### How to Build
-1. Install depot_tools
-  https://www.chromium.org/developers/how-tos/install-depot-tools
-
-2. $./build/build
+1. $./build/build
 
 ### How to Run
-1. $./out/Default/lainjs "javascript application file"
-   (For example, ./out/Default/lainjs ./test/hello.js)
+1. $./out/x86_64-linux/release/lainjs/lainjs "javascript application file"
+   (For example, ./out/x86_64-linux/release/lainjs/lainjs ./test/hello.js)
 
 ## Lain.js license
 
