@@ -1,4 +1,4 @@
-nguage: c
+language: c
 sudo: required
 script:
   - build/build
