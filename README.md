@@ -1,4 +1,7 @@
-# Lain.js
+Lain.js
+=======
+
+[![Build Status](https://travis-ci.org/lainjs/lain.svg?branch=master)](https://travis-ci.org/lainjs/lain)
 
 ## Setting up your environment
 ### How to Build
