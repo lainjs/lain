@@ -1,0 +1,4 @@
+nguage: c
+sudo: required
+script:
+  - build/build
