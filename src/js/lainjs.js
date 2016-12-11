@@ -62,5 +62,9 @@
     return undefined;
   };
 
+  process.JSONParse = function(text) {
+      return process.compile("(" + text + ");");
+  };
+
   start_lainjs();
 })(process);

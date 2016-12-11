@@ -23,6 +23,7 @@
 
 #include "lainjs_module.h"
 #include "lainjs_module_process.h"
+#include "lainjs_util.h"
 
 int lainjs_process_binding_binding(duk_context *ctx) {
   assert(duk_get_top(ctx) == 1);
@@ -40,11 +41,29 @@ int lainjs_process_binding_binding(duk_context *ctx) {
 }
 
 int lainjs_process_binding_compile(duk_context *ctx) {
-  return 0;
+  assert(duk_get_top(ctx) == 1);
+  assert(duk_is_string(ctx, 0));
+
+  duk_push_string(ctx, "eval");
+  duk_compile(ctx, DUK_COMPILE_EVAL);
+  duk_call(ctx, 0);
+
+  return 1;
 }
 
 int lainjs_process_binding_read_source(duk_context *ctx) {
-  return 0;
+  assert(duk_get_top(ctx) == 1);
+  assert(duk_is_string(ctx, 0));
+
+  // TODO: We need to fix up 'lainjs_read_file' function.
+  char* code = lainjs_read_file(duk_get_string(ctx, 0));
+
+  if (!code)
+    return 0;
+
+  duk_push_string(ctx, code);
+  duk_trim(ctx, -1);
+  return 1;
 }
 
 void lainjs_on_next_tick(duk_context *ctx) {

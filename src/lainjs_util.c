@@ -38,6 +38,8 @@ char* lainjs_read_file(const char* path) {
   size_t read = fread(buff, 1, len, file);
   assert(read == len);
 
+  *(buff+len) = 0;
+
   fclose(file);
 
   return buff;
