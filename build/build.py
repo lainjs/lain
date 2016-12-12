@@ -184,6 +184,7 @@ def build_duktape():
     run_cmd('cmake', [DUKTAPE_ROOT])
     run_cmd('make');
 
+    mkdir(opt_build_libs())
     copy(join_path([duktape_build_path, 'libduktape.a']), libduktape_output_path())
 
     return True

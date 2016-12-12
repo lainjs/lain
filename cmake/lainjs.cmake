@@ -36,7 +36,11 @@ function(BuildLainjs)
   set_property(TARGET ${targetName}
                PROPERTY LINK_FLAGS "${LAINJS_CFLAGS}")
 
+if((${CMAKE_VERSION} VERSION_GREATER "2.8.9"))
   target_include_directories(${targetName} PRIVATE ${LAINJS_INCDI})
+else()
+  include_directories(${LAINJS_INCDI})
+endif()
 
   # FIXME
   find_library(M_LIB m)
