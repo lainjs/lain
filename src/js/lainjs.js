@@ -25,6 +25,8 @@
 
   function start_lainjs() {
     init_process();
+    var module = Native.require('module');
+    module.runMain();
   };
 
   function init_process() {
@@ -58,9 +60,39 @@
     }
   };
 
-  this.require = function(id) {
-    return undefined;
+  function Native(id) {
+    this.id = id;
+    this.filename = id + '.js';
+    this.exports = {};
+  }
+
+  Native.prototype.compile = function() {
+    var source = process.native_sources[this.id];
+    source = Native.wrap(source);
+    var fn = process.compile(source);
+    fn(this.exports, Native.require, this);
   };
+
+  Native.require = function(id) {
+    if (id == 'native') {
+      return Native;
+    }
+
+    var nativeMod = new Native(id);
+    nativeMod.compile();
+    return nativeMod.exports;
+  };
+
+  Native.wrap = function(script) {
+    var header = Native.wrapper[0] + script;
+    footer = header + Native.wrapper[1];
+    return footer;
+  };
+
+  Native.wrapper = [
+    '(function (exports, require, module) {\n',
+    '\n});'
+  ];
 
   process.JSONParse = function(text) {
       return process.compile("(" + text + ");");

@@ -43,11 +43,11 @@ void lainjs_setup_modules(duk_context *ctx) {
   lainjs_init_process(ctx);
 }
 
-void lainjs_init_main_js(duk_context *ctx) {
+void lainjs_start_main_js(duk_context *ctx) {
   duk_eval_string(ctx, mainjs);
 }
 
-int lainjs_start(const char* src) {
+int lainjs_start(char** argv) {
   duk_context *ctx = duk_create_heap_default();
 
   struct env *env = (struct env*) malloc(sizeof(struct env));
@@ -55,9 +55,25 @@ int lainjs_start(const char* src) {
   lainjs_set_envronment(ctx, env);
 
   lainjs_setup_modules(ctx);
-  lainjs_init_main_js(ctx);
 
-  duk_eval_string(ctx, src);
+  // FIXME : cleanly make it.
+  {
+    duk_push_global_object(ctx);
+    duk_get_prop_string(ctx, -1, "process");
+
+    duk_idx_t arr_idx;
+    arr_idx = duk_push_array(ctx);
+    duk_push_string(ctx, argv[0]);
+    duk_put_prop_index(ctx, arr_idx, 0);
+    duk_push_string(ctx, argv[1]);
+    duk_put_prop_index(ctx, arr_idx, 1);
+    duk_put_prop_string(ctx, -2, "argv");
+    duk_pop_2(ctx);
+  }
+
+  lainjs_start_main_js(ctx);
+
+  //duk_eval_string(ctx, "print(process['lainjs']);");
 
   int more;
   do {
@@ -78,9 +94,7 @@ int lainjs_entry(int argc, char** argv) {
     return 1;
   }
 
-  char *src = lainjs_read_file(argv[1]);
-  lainjs_start(src);
+  lainjs_start(argv);
 
-  lainjs_release_char_buffer(src);
   return 1;
 }

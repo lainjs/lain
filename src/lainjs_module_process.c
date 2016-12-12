@@ -21,6 +21,7 @@
 
 #include <assert.h>
 
+#include "lainjs_js.h"
 #include "lainjs_module.h"
 #include "lainjs_module_process.h"
 #include "lainjs_util.h"
@@ -35,6 +36,7 @@ int lainjs_process_binding_binding(duk_context *ctx) {
     if (module->register_func)
       module->register_func(ctx);
 
+  duk_push_global_stash(ctx);
   duk_get_prop_string(ctx, -1, module->module);
 
   return 1;
@@ -85,11 +87,28 @@ void lainjs_on_next_tick(duk_context *ctx) {
     duk_push_global_stash(ctx);
     for (kind = MODULE_PROCESS; kind < MODULE_COUNT; kind++) {
       module* module = lainjs_get_builtin_module(kind);
+
       if (duk_has_prop_string(ctx, -1, module->module))
         duk_del_prop_string(ctx, -1, module->module);
     }
     duk_pop(ctx);
   }
+}
+
+void lainjs_set_native_codes(duk_context *ctx) {
+  module* module = lainjs_get_builtin_module(MODULE_PROCESS);
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, "process");
+  duk_push_object(ctx);
+  // FIXME : cleanly make it, and have memory issue.
+  int index;
+  for (index = 0; natives[index].name; index++) {
+    duk_push_string(ctx, natives[index].source);
+    duk_put_prop_string(ctx, -2, natives[index].name);
+  }
+  duk_put_prop_string(ctx, -2, "native_sources");
+
+  duk_pop_2(ctx);
 }
 
 void lainjs_init_process(duk_context *ctx) {
@@ -121,4 +140,6 @@ void lainjs_init_process(duk_context *ctx) {
   duk_dup(ctx, -2);
   duk_put_prop_string(ctx, -2, module->module);
   duk_pop_3(ctx);
+
+  lainjs_set_native_codes(ctx);
 }

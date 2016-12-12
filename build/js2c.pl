@@ -22,7 +22,7 @@ my $lisence = "/* Copyright (c) 2016 by Lain.js authors
  * THE SOFTWARE.
  */\n";
 my $header = "#ifndef LAINJS_JS_H\n#define LAINJS_JS_H\n";
-my $start_variable = "  const char mainjs[] = {\n";
+my $start_variable = "  static const char mainjs[] = {\n";
 my $end_variable = "0 };\n";
 my $foot = "#endif\n";
 
@@ -49,7 +49,7 @@ foreach (@chars) {
 }
 
 print $out $end_variable;
-print $out "\nconst int mainjs_length \= $count\;\n";
+print $out "\nstatic const int mainjs_length \= $count\;\n";
 
 # 2. src/js/*.js into lainjs_js.h
 
@@ -60,8 +60,8 @@ foreach(@filenames) {
     my $name = $_;
     $name =~ s{\.[^.]+$}{};
 
-    print $out "const char $name\_n [] = \"$name\";\n";
-    print $out "const char $name\_s [] = \{\n";
+    print $out "static const char $name\_n [] = \"$name\";\n";
+    print $out "static const char $name\_s [] = \{\n";
 
     open(my $in, "<./src/js/$name.js") || die "Cannot open $name.js\n";
     my $data = do { local $/; <$in> };
@@ -99,7 +99,7 @@ foreach(@filenames) {
     print $out "\{ $name\_n, $name\_s, $name\_l \},\n";
 }
 
-print $out "\{ NULL, NULL, 0 \}\}\;\n";
+print $out "\{ 0, 0, 0 \}\}\;\n";
 
 # add footer
 print $out $foot;
