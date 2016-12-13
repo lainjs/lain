@@ -132,40 +132,25 @@ def build_libuv():
     if not check_path(LIBUV_ROOT):
         print 'Error> libuv build failed - submodule not exists.'
         return False
-
-    git_hash = get_git_hash(LIBUV_ROOT)
-
     build_home = join_path([opt_build_root(), LIBUV_BUILD_SUFFIX])
 
-    build_cache_dir = join_path([build_home, 'cache'])
-    build_cache_name = join_path([build_cache_dir, 'libuv.' + git_hash])
+    mkdir(build_home)
+    mkdir(join_path([LIBUV_ROOT, 'out']))
 
-    if not check_path(build_cache_name):
+    os.chdir(LIBUV_ROOT)
 
-        mkdir(build_home)
+    run_cmd('./gyp_uv.py', ['-f', 'make'])
 
-        os.chdir(LIBUV_ROOT)
+    build_type = 'Release' if opt_build_type() == 'release' else 'Debug'
+    run_cmd('make', ['-C',
+                    'out',
+                    'BUILDTYPE=' + build_type,
+                    opt_make_flags()])
 
-        run_cmd('./gyp_uv.py', ['-f', 'make'])
-
-        build_type = 'Release' if opt_build_type() == 'release' else 'Debug'
-        run_cmd('make', ['-C',
-                        'out',
-                        'BUILDTYPE=' + build_type,
-                        opt_make_flags()])
-
-        output = join_path([LIBUV_ROOT, 'out', build_type, 'libuv.a'])
-
-        # check if target is created.
-        if not check_path(output):
-            print '* libuv build failed - target not produced.'
-            return False
-
-        mkdir(build_cache_dir)
-        copy(output, build_cache_name)
+    output = join_path([LIBUV_ROOT, 'out', build_type, 'obj.target', 'libuv.a'])
 
     mkdir(opt_build_libs())
-    copy(build_cache_name, libuv_output_path())
+    copy(output, libuv_output_path())
 
     return True
 

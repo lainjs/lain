@@ -1,4 +1,9 @@
 language: c
 sudo: required
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install gyp
 script:
+  - rm -rf ./third_party
+  - rm -rf ./out
   - build/build
