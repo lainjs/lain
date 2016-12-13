@@ -27,6 +27,7 @@ typedef enum {
   MODULE_PROCESS,
   MODULE_CONSOLE,
   MODULE_TIMER,
+  MODULE_BUFFER,
   MODULE_COUNT,
 } lainjs_modules;
 
