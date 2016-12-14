@@ -40,11 +40,7 @@ int lainjs_buffer_binding_alloc(duk_context *ctx) {
   duk_put_prop_string(ctx, -2, "##native##");
 
   duk_dup(ctx, 1);
-  duk_put_prop_string(ctx, -2, "length");
 
-  duk_pop(ctx);
-
-  duk_dup(ctx, 1);
   return 1;
 }
 

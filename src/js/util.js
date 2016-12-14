@@ -19,9 +19,37 @@
  * THE SOFTWARE.
  */
 
-var console = require('console');
-var buffer = require('buffer');
+function isNull(arg) {
+  return arg === null;
+};
+module.exports.isNull = isNull;
 
-var string_buffer = new buffer("Hello,      ");
-string_buffer.write("Lain", 7, 4);
-console.log(string_buffer.toString());
+function isUndefined(arg) {
+  return arg === undefined;
+};
+module.exports.isUndefined = isUndefined;
+
+function isNullOrUndefined(arg) {
+  return isNull(arg) || isUndefined(arg);
+};
+module.exports.isNullOrUndefined = isNullOrUndefined;
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+};
+module.exports.isNumber = isNumber;
+
+function isString(arg) {
+  return typeof arg === 'string';
+};
+module.exports.isString = isString;
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg != null;
+};
+module.exports.isObject = isObject;
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+};
+module.exports.isFunction = isFunction;
