@@ -15,6 +15,7 @@ Module.load = function(id,isMain) {
   if(process.native_sources[id]){
     return Native.require(id);
   }
+
   var module = new Module(id);
   if(isMain){
     module.id = 'main';
