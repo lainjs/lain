@@ -41,13 +41,38 @@ function Buffer(subject, encoding) {
   if (util.isString(subject)) {
     this.write(subject, encoding);
   } else if (subject instanceof Buffer) {
-    //subject.copy(this, 0, 0, this.length);
+    subject.copy(this, 0, 0, this.length);
   }
 }
 
 Buffer.byteLength = function(str, enc) {
   return str.length;
 }
+
+Buffer.concat = function(list) {
+  if (!util.isArray(list)) {
+    throw new TypeError(
+        '1st parameter for Buffer.concat() should be array of Buffer');
+  }
+
+  length = 0;
+  for (var i = 0; i < list.length; ++i) {
+    if (!util.isBuffer(list[i])) {
+      throw new TypeError(
+          '1st parameter for Buffer.concat() should be array of Buffer');
+    }
+    length += list[i].length;
+  }
+
+  var buffer = new Buffer(length);
+  var pos = 0;
+  for (var i = 0; i < list.length; ++i) {
+    list[i].copy(buffer, pos);
+    pos += list[i].length;
+  }
+
+  return buffer;
+};
 
 Buffer.prototype.write = function(string, offset, length, encoding) {
   if (util.isUndefined(offset)) {
@@ -87,3 +112,4 @@ Buffer.prototype.toString = function(encoding, start, end) {
 buffer.setupBufferJs(Buffer);
 
 module.exports = Buffer;
+module.exports.Buffer = Buffer;

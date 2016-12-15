@@ -18,6 +18,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-var console = require('console');
 console.log('Hello, Lain!');

@@ -71,7 +71,7 @@ int lainjs_process_binding_read_source(duk_context *ctx) {
 void lainjs_on_next_tick(duk_context *ctx) {
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-    duk_push_global_object(ctx);
+    duk_push_global_stash(ctx);
     duk_get_prop_string(ctx, -1, module->module);
     duk_get_prop_string(ctx, -1, "onNextTick");
 
@@ -85,7 +85,7 @@ void lainjs_on_next_tick(duk_context *ctx) {
     // If ref count is '0', delete binding objects.
     int kind;
     duk_push_global_stash(ctx);
-    for (kind = MODULE_PROCESS; kind < MODULE_COUNT; kind++) {
+    for (kind = MODULE_PROCESS + 1; kind < MODULE_COUNT; kind++) {
       module* module = lainjs_get_builtin_module(kind);
 
       if (duk_has_prop_string(ctx, -1, module->module))

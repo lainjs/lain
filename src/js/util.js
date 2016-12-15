@@ -53,3 +53,11 @@ function isFunction(arg) {
   return typeof arg === 'function';
 };
 module.exports.isFunction = isFunction;
+
+function isBuffer(arg) {
+  return arg instanceof Buffer;
+};
+module.exports.isBuffer = isBuffer;
+
+
+module.exports.isArray = Array.isArray;

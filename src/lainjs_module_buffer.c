@@ -61,7 +61,8 @@ int Write(duk_context *ctx) {
   duk_pop(ctx);
   assert(buffer != NULL);
 
-  char buffer_length = duk_get_prop_string(ctx, -1, "length");
+  duk_get_prop_string(ctx, -1, "length");
+  int buffer_length = duk_get_number(ctx, -1);
   duk_pop(ctx);
   assert(buffer_length >= offset + length);
 
@@ -87,6 +88,61 @@ int ToString(duk_context *ctx) {
   return 1;
 }
 
+int Copy(duk_context *ctx) {
+  unsigned long args_lens = duk_get_top(ctx);
+
+  // target
+  duk_dup(ctx, 0);
+  duk_get_prop_string(ctx, -1, "##native##");
+  char* target_buffer = (char*)duk_get_pointer(ctx, -1);
+  duk_pop(ctx);
+  duk_get_prop_string(ctx, -1, "length");
+  int target_length = duk_get_number(ctx, -1);
+  duk_pop(ctx);
+  duk_pop(ctx);
+
+  // source
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "##native##");
+  char* source_buffer = (char*)duk_get_pointer(ctx, -1);
+  duk_pop(ctx);
+  duk_get_prop_string(ctx, -1, "length");
+  int source_length = duk_get_number(ctx, -1);
+  duk_pop(ctx);
+  duk_pop(ctx);
+
+  int target_start = 0;
+  int source_start = 0;
+  int source_end = source_length;
+
+  if (args_lens >= 2) {
+    target_start = duk_get_number(ctx, 1);
+  }
+
+  if (args_lens >= 3) {
+    source_start = duk_get_number(ctx, 2);
+  }
+
+  if (args_lens >= 4) {
+    source_end = duk_get_number(ctx, 3);
+    if (source_end > source_length) {
+      source_end = source_length;
+    }
+  }
+
+  int copied = 0;
+  for (int i = source_start, j = target_start;
+       i < source_end && j < target_length;
+       ++i, ++j) {
+    *(target_buffer + j) = *(source_buffer + i);
+    ++copied;
+  }
+
+  duk_push_number(ctx, copied);
+
+  return 1;
+}
+
 int lainjs_buffer_binding_setup_buffer_js(duk_context *ctx) {
   unsigned long args_lens = duk_get_top(ctx);
   assert(args_lengs == 1);
@@ -98,6 +154,9 @@ int lainjs_buffer_binding_setup_buffer_js(duk_context *ctx) {
 
   duk_push_c_function(ctx, ToString, DUK_VARARGS);
   duk_put_prop_string(ctx, -2, "_toString");
+
+  duk_push_c_function(ctx, Copy, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, "copy");
 
   return 0;
 }

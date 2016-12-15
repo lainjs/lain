@@ -58,7 +58,7 @@ int lainjs_start(char** argv) {
 
   // FIXME : cleanly make it.
   {
-    duk_push_global_object(ctx);
+    duk_push_global_stash(ctx);
     duk_get_prop_string(ctx, -1, "process");
 
     duk_idx_t arr_idx;

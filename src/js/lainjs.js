@@ -24,9 +24,19 @@
   global.process = process;
 
   function start_lainjs() {
+    init_global();
     init_process();
     var module = Native.require('module');
     module.runMain();
+  };
+
+  function init_global() {
+    global.process = process;
+    global.global = global;
+    global.GLOBAL = global;
+    global.root = global;
+    global.console =  process.binding(1);
+    global.Buffer = Native.require('buffer');
   };
 
   function init_process() {
