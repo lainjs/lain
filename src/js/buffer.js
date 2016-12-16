@@ -19,8 +19,7 @@
  * THE SOFTWARE.
  */
 
-var MODULE_BUFFER = 3;
-var buffer = global.process.binding(MODULE_BUFFER);
+var buffer = global.process.binding(process.binding.buffer);
 var alloc = buffer.alloc;
 var util = require('util');
 var console = require('console');

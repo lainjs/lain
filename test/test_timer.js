@@ -19,13 +19,9 @@
  * THE SOFTWARE.
  */
 
-var MODULE_PROCESS = 0;
-var MODULE_CONSOLE = 1;
-var MODULE_TIMER   = 2;
 this.global = this;
 var global = this.global;
-global.console = process.binding(MODULE_CONSOLE);
-global.Timer = process.binding(MODULE_TIMER);
+global.Timer = process.binding(process.binding.timer);
 
 var timerobj = new Timer();
 timerobj.start(500, 0, function() {

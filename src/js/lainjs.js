@@ -35,7 +35,7 @@
     global.global = global;
     global.GLOBAL = global;
     global.root = global;
-    global.console =  process.binding(1);
+    global.console =  process.binding(process.binding.console);
     global.Buffer = Native.require('buffer');
   };
 

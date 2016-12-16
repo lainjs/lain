@@ -20,4 +20,4 @@
  */
 
 var MODULE_CONSOLE = 1;
-module.exports = process.binding(MODULE_CONSOLE);;
+module.exports = process.binding(process.binding.console);;
