@@ -109,4 +109,4 @@
   };
 
   start_lainjs();
-})(process);
+});

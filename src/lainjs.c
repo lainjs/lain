@@ -44,7 +44,21 @@ void lainjs_setup_modules(duk_context *ctx) {
 }
 
 void lainjs_start_main_js(duk_context *ctx) {
+  // cleanly make it.
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, "process");
   duk_eval_string(ctx, mainjs);
+  duk_push_global_object(ctx);
+  duk_dup(ctx, -3);
+  {
+    duk_int_t rc;
+    rc = duk_pcall_method(ctx, 1);
+
+    if (rc != DUK_EXEC_SUCCESS) {
+      printf("Runtime Error : %s\n", duk_to_string(ctx, -1));
+    }
+  }
+  duk_pop_3(ctx);
 }
 
 int lainjs_start(char** argv) {
