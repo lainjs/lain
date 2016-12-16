@@ -6,7 +6,7 @@ Lain.js
 1. $./build/build
 
 ### How to Run
-1. cd ./test
+1. $cd ./test
 2. $../out/x86_64-linux/release/lainjs/lainjs hello_lain.js
 
 ## Lain.js license
