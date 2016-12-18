@@ -39,7 +39,7 @@ static module _modules[MODULE_COUNT];
 void lainjs_init_modules(duk_context *ctx) {
   INIT_MODULE(CONSOLE, console, "console")
   INIT_MODULE(PROCESS, process, "process")
-  INIT_MODULE(TIMER, timer, "Timer")
+  INIT_MODULE(TIMER, timer, "timer")
   INIT_MODULE(BUFFER, buffer, "buffer")
   INIT_MODULE(FS, fs, "fs")
   INIT_MODULE(CONSTANTS, constants, "constants")
