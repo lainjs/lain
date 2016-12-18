@@ -19,32 +19,39 @@
  * THE SOFTWARE.
  */
 
-#ifndef LAINJS_BINDING_H
-#define LAINJS_BINDING_H
 #include <stdio.h>
-#include "duktape.h"
+#include <assert.h>
 
-#define STORE_OBJECT_ON_STASH(ctx, obj) \
-  duk_push_global_stash(ctx); \
-  duk_push_object(ctx); \
-  duk_put_prop_string(ctx, -2, obj); \
+#include "uv.h"
+
+#include "lainjs_binding.h"
+#include "lainjs_module.h"
+#include "lainjs_module_fs.h"
+
+void lainjs_init_constants(duk_context *ctx) {
+  module* module = lainjs_get_builtin_module(MODULE_CONSTANTS);
+
+  STORE_OBJECT_ON_STASH(ctx, module->module)
+
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, module->module);
+
+  duk_push_int(ctx, O_APPEND);
+  duk_put_prop_string(ctx, -2, "O_APPEND");
+  duk_push_int(ctx, O_CREAT);
+  duk_put_prop_string(ctx, -2, "O_CREAT");
+  duk_push_int(ctx, O_EXCL);
+  duk_put_prop_string(ctx, -2, "O_EXCL");
+  duk_push_int(ctx, O_RDONLY);
+  duk_put_prop_string(ctx, -2, "O_RDONLY");
+  duk_push_int(ctx, O_RDWR);
+  duk_put_prop_string(ctx, -2, "O_RDWR");
+  duk_push_int(ctx, O_SYNC);
+  duk_put_prop_string(ctx, -2, "O_SYNC");
+  duk_push_int(ctx, O_TRUNC);
+  duk_put_prop_string(ctx, -2, "O_TRUNC");
+  duk_push_int(ctx, O_WRONLY);
+  duk_put_prop_string(ctx, -2, "O_WRONLY");
+
   duk_pop(ctx);
-
-#define STORE_FUNC_ON_STASH(ctx, func, name) \
-  duk_push_global_stash(ctx); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
-
-#define FUNC_BINDING_WITH_STASH(ctx, obj, func, name) \
-  duk_push_global_stash(ctx); \
-  duk_get_prop_string(ctx, -1, obj); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop_2(ctx);
-
-#define JSTHROW(text) \
-  duk_push_string(ctx, text); \
-  duk_throw(ctx);
-
-#endif
+}

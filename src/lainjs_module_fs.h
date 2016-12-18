@@ -19,32 +19,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef LAINJS_BINDING_H
-#define LAINJS_BINDING_H
-#include <stdio.h>
-#include "duktape.h"
-
-#define STORE_OBJECT_ON_STASH(ctx, obj) \
-  duk_push_global_stash(ctx); \
-  duk_push_object(ctx); \
-  duk_put_prop_string(ctx, -2, obj); \
-  duk_pop(ctx);
-
-#define STORE_FUNC_ON_STASH(ctx, func, name) \
-  duk_push_global_stash(ctx); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
-
-#define FUNC_BINDING_WITH_STASH(ctx, obj, func, name) \
-  duk_push_global_stash(ctx); \
-  duk_get_prop_string(ctx, -1, obj); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop_2(ctx);
-
-#define JSTHROW(text) \
-  duk_push_string(ctx, text); \
-  duk_throw(ctx);
-
+#ifndef LAINJS_MODULE_FS_H
+#define LAINJS_MODULE_FS_H
+#include "lainjs_binding.h"
+void lainjs_init_fs(duk_context *ctx);
 #endif

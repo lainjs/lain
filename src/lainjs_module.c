@@ -22,10 +22,12 @@
 #include <assert.h>
 
 #include "lainjs_module.h"
+#include "lainjs_module_buffer.h"
 #include "lainjs_module_console.h"
+#include "lainjs_module_constants.h"
+#include "lainjs_module_fs.h"
 #include "lainjs_module_process.h"
 #include "lainjs_module_timer.h"
-#include "lainjs_module_buffer.h"
 
 static module _modules[MODULE_COUNT];
 
@@ -39,6 +41,8 @@ void lainjs_init_modules(duk_context *ctx) {
   INIT_MODULE(PROCESS, process, "process")
   INIT_MODULE(TIMER, timer, "Timer")
   INIT_MODULE(BUFFER, buffer, "buffer")
+  INIT_MODULE(FS, fs, "fs")
+  INIT_MODULE(CONSTANTS, constants, "constants")
 }
 
 module* lainjs_get_builtin_module(lainjs_modules kind) {

@@ -29,6 +29,12 @@
 int lainjs_process_binding_binding(duk_context *ctx) {
   assert(duk_get_top(ctx) == 1);
   int kind = (int)duk_to_number(ctx, 0);
+
+  if (kind >= MODULE_COUNT || kind < 0) {
+    duk_push_undefined(ctx);
+    return 1;
+  }
+
   module* module = lainjs_get_builtin_module(kind);
 
   duk_push_global_stash(ctx);
@@ -48,7 +54,7 @@ int lainjs_process_binding_compile(duk_context *ctx) {
 
   duk_push_string(ctx, "eval");
   duk_compile(ctx, DUK_COMPILE_EVAL);
-  duk_call(ctx, 0);
+  duk_pcall(ctx, 0);
 
   return 1;
 }
@@ -114,12 +120,6 @@ void lainjs_set_native_codes(duk_context *ctx) {
 void lainjs_init_process(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
 
-  duk_push_global_stash(ctx);
-  if (duk_has_prop_string(ctx, -1, module->module)) {
-    duk_pop(ctx);
-  }
-  duk_pop(ctx);
-
   STORE_OBJECT_ON_STASH(ctx, module->module)
 
   FUNC_BINDING_WITH_STASH(ctx, module->module,
@@ -148,14 +148,16 @@ void lainjs_init_process(duk_context *ctx) {
   duk_get_prop_string(ctx, -1, "binding");
   duk_push_int(ctx, MODULE_PROCESS);
   duk_put_prop_string(ctx, -2, "process");
-
   duk_push_int(ctx, MODULE_CONSOLE);
   duk_put_prop_string(ctx, -2, "console");
-
   duk_push_int(ctx, MODULE_TIMER);
   duk_put_prop_string(ctx, -2, "timer");
-
   duk_push_int(ctx, MODULE_BUFFER);
   duk_put_prop_string(ctx, -2, "buffer");
+  duk_push_int(ctx, MODULE_FS);
+  duk_put_prop_string(ctx, -2, "fs");
+  duk_push_int(ctx, MODULE_CONSTANTS);
+  duk_put_prop_string(ctx, -2, "constants");
+
   duk_pop_3(ctx);
 }
