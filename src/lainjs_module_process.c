@@ -90,14 +90,10 @@ void lainjs_on_next_tick(duk_context *ctx) {
   {
     // If ref count is '0', delete binding objects.
     int kind;
-    duk_push_global_stash(ctx);
     for (kind = MODULE_TIMER; kind < MODULE_COUNT; kind++) {
       module* module = lainjs_get_builtin_module(kind);
-
-      if (duk_has_prop_string(ctx, -1, module->module))
-        duk_del_prop_string(ctx, -1, module->module);
+      JS_DELETE_OBJECT_ON_STASH(module->module)
     }
-    duk_pop(ctx);
   }
 }
 

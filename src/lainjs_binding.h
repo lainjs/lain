@@ -24,6 +24,12 @@
 #include <stdio.h>
 #include "duktape.h"
 
+#define JS_DELETE_OBJECT_ON_STASH(obj) \
+  duk_push_global_stash(ctx); \
+  if (duk_has_prop_string(ctx, -1, obj)) \
+    duk_del_prop_string(ctx, -1, obj); \
+  duk_pop(ctx);
+
 #define STORE_OBJECT_ON_STASH(ctx, obj) \
   duk_push_global_stash(ctx); \
   duk_push_object(ctx); \
