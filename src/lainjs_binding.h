@@ -30,26 +30,26 @@
     duk_del_prop_string(ctx, -1, obj); \
   duk_pop(ctx);
 
-#define STORE_OBJECT_ON_STASH(ctx, obj) \
+#define JS_BINDING_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_push_object(ctx); \
   duk_put_prop_string(ctx, -2, obj); \
   duk_pop(ctx);
 
-#define STORE_FUNC_ON_STASH(ctx, func, name) \
+#define JS_BINDING_FUNC_ON_STASH(func, name) \
   duk_push_global_stash(ctx); \
   duk_push_c_function(ctx, func, DUK_VARARGS); \
   duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
-#define FUNC_BINDING_WITH_STASH(ctx, obj, func, name) \
+#define JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(obj, func, name) \
   duk_push_global_stash(ctx); \
   duk_get_prop_string(ctx, -1, obj); \
   duk_push_c_function(ctx, func, DUK_VARARGS); \
   duk_put_prop_string(ctx, -2, name); \
   duk_pop_2(ctx);
 
-#define JSTHROW(text) \
+#define JS_THROW(text) \
   duk_push_string(ctx, text); \
   duk_throw(ctx);
 

@@ -104,7 +104,7 @@ static void After(uv_fs_t* req) {
                               __VA_ARGS__, \
                               NULL); \
   if (err < 0) { \
-    JSTHROW(CreateUVException(err, #syscall)) \
+    JS_THROW(CreateUVException(err, #syscall)) \
   } else { \
     duk_push_number(ctx, err);\
   } \
@@ -113,19 +113,19 @@ int lainjs_fs_binding_open(duk_context *ctx) {
   unsigned long args_lens = duk_get_top(ctx);
 
   if (args_lens < 1) {
-    JSTHROW("path required");
+    JS_THROW("path required");
   } else if (args_lens < 2) {
-    JSTHROW("flags required");
+    JS_THROW("flags required");
   } else if (args_lens < 3) {
-    JSTHROW("mode required");
+    JS_THROW("mode required");
   }
 
   if (!duk_is_string(ctx, 0)) {
-    JSTHROW("path must be a string");
+    JS_THROW("path must be a string");
   } else if (!duk_is_number(ctx, 1)) {
-    JSTHROW("flags must be an int");
+    JS_THROW("flags must be an int");
   } else if (!duk_is_number(ctx, 2)) {
-    JSTHROW("mode must be an int");
+    JS_THROW("mode must be an int");
   }
 
   struct env *env = lainjs_get_envronment(ctx);
@@ -152,27 +152,27 @@ int lainjs_fs_binding_read(duk_context *ctx) {
   unsigned long args_lens = duk_get_top(ctx);
 
   if (args_lens < 1) {
-    JSTHROW("fd required");
+    JS_THROW("fd required");
   } else if (args_lens < 2) {
-    JSTHROW("buffer required");
+    JS_THROW("buffer required");
   } else if (args_lens < 3) {
-    JSTHROW("offset required");
+    JS_THROW("offset required");
   } else if (args_lens < 4) {
-    JSTHROW("length required");
+    JS_THROW("length required");
   } else if (args_lens < 5) {
-    JSTHROW("position required");
+    JS_THROW("position required");
   }
 
   if (!duk_is_number(ctx, 0)) {
-    JSTHROW("fd must be an int");
+    JS_THROW("fd must be an int");
   } else if (!duk_is_object(ctx, 1)) {
-    JSTHROW("buffer must be a Buffer");
+    JS_THROW("buffer must be a Buffer");
   } else if (!duk_is_number(ctx, 2)) {
-    JSTHROW("offset must be an int");
+    JS_THROW("offset must be an int");
   } else if (!duk_is_number(ctx, 3)) {
-    JSTHROW("length must be an int");
+    JS_THROW("length must be an int");
   } else if (!duk_is_number(ctx, 4)) {
-    JSTHROW("position must be an int");
+    JS_THROW("position must be an int");
   }
 
   struct env *env = lainjs_get_envronment(ctx);
@@ -191,11 +191,11 @@ int lainjs_fs_binding_read(duk_context *ctx) {
   duk_pop_2(ctx);
 
   if (offset >= buffer_length) {
-    JSTHROW("offset out of bound");
+    JS_THROW("offset out of bound");
   }
  
   if (offset + length > buffer_length) {
-    JSTHROW("length out of bound");
+    JS_THROW("length out of bound");
   }
 
   uv_buf_t uvbuf = uv_buf_init(buffer + offset, length);
@@ -217,13 +217,13 @@ int lainjs_fs_binding_read(duk_context *ctx) {
 void lainjs_init_fs(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_FS);
 
-  STORE_OBJECT_ON_STASH(ctx, module->module)
+  JS_BINDING_OBJECT_ON_STASH(module->module)
 
-  FUNC_BINDING_WITH_STASH(ctx, module->module,
-                          lainjs_fs_binding_open,
-                          "open")
+  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+                                        lainjs_fs_binding_open,
+                                        "open")
 
-  FUNC_BINDING_WITH_STASH(ctx, module->module,
-                          lainjs_fs_binding_read,
-                          "read")
+  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+                                        lainjs_fs_binding_read,
+                                        "read")
 }

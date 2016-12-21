@@ -31,7 +31,7 @@
 void lainjs_init_constants(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSTANTS);
 
-  STORE_OBJECT_ON_STASH(ctx, module->module)
+  JS_BINDING_OBJECT_ON_STASH(module->module)
 
   duk_push_global_stash(ctx);
   duk_get_prop_string(ctx, -1, module->module);

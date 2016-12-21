@@ -135,5 +135,5 @@ int lainjs_construct_timer(duk_context *ctx) {
 void lainjs_init_timer(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TIMER);
 
-  STORE_FUNC_ON_STASH(ctx, lainjs_construct_timer, module->module)
+  JS_BINDING_FUNC_ON_STASH(lainjs_construct_timer, module->module)
 }

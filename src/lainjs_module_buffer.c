@@ -164,13 +164,13 @@ int lainjs_buffer_binding_setup_buffer_js(duk_context *ctx) {
 void lainjs_init_buffer(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_BUFFER);
 
-  STORE_OBJECT_ON_STASH(ctx, module->module)
+  JS_BINDING_OBJECT_ON_STASH(module->module)
 
-  FUNC_BINDING_WITH_STASH(ctx, module->module,
-                          lainjs_buffer_binding_alloc,
-                          "alloc")
+  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+                                        lainjs_buffer_binding_alloc,
+                                        "alloc")
 
-  FUNC_BINDING_WITH_STASH(ctx, module->module,
-                          lainjs_buffer_binding_setup_buffer_js,
-                          "setupBufferJs")
+  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+                                        lainjs_buffer_binding_setup_buffer_js,
+                                        "setupBufferJs")
 }
