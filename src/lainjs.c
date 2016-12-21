@@ -44,21 +44,18 @@ void lainjs_setup_modules(duk_context *ctx) {
 }
 
 void lainjs_start_main_js(duk_context *ctx) {
-  // cleanly make it.
-  duk_push_global_stash(ctx);
-  duk_get_prop_string(ctx, -1, "process");
-  duk_eval_string(ctx, mainjs);
-  duk_push_global_object(ctx);
-  duk_dup(ctx, -3);
-  {
-    duk_int_t rc;
-    rc = duk_pcall_method(ctx, 1);
+  JS_GET_OBJECT_ON_STASH("process")
+  JS_GET_GLOBAL_OBJECT
 
-    if (rc != DUK_EXEC_SUCCESS) {
-      printf("Runtime Error : %s\n", duk_to_string(ctx, -1));
-    }
-  }
-  duk_pop_3(ctx);
+  JS_EVAL_WITH_RESULT(mainjs)
+
+  // [ object ] [ object ] [ function ]
+  lainjs_func_t *func = lainjs_create_func_t();
+
+  lainjs_set_function(func, -1);
+  lainjs_add_argument(func, -2);
+  lainjs_add_argument(func, -3);
+  lainjs_call_mathod_with_this(ctx, func);
 }
 
 int lainjs_start(char** argv) {
@@ -72,8 +69,7 @@ int lainjs_start(char** argv) {
 
   // FIXME : cleanly make it.
   {
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, "process");
+    JS_GET_OBJECT_ON_STASH("process")
 
     duk_idx_t arr_idx;
     arr_idx = duk_push_array(ctx);
@@ -82,12 +78,10 @@ int lainjs_start(char** argv) {
     duk_push_string(ctx, argv[1]);
     duk_put_prop_index(ctx, arr_idx, 1);
     duk_put_prop_string(ctx, -2, "argv");
-    duk_pop_2(ctx);
+    duk_pop(ctx);
   }
 
   lainjs_start_main_js(ctx);
-
-  //duk_eval_string(ctx, "print(process['lainjs']);");
 
   int more;
   do {

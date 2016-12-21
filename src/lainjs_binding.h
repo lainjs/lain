@@ -24,12 +24,7 @@
 #include <stdio.h>
 #include "duktape.h"
 
-#define JS_DELETE_OBJECT_ON_STASH(obj) \
-  duk_push_global_stash(ctx); \
-  if (duk_has_prop_string(ctx, -1, obj)) \
-    duk_del_prop_string(ctx, -1, obj); \
-  duk_pop(ctx);
-
+///// BINDING API START
 #define JS_BINDING_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_push_object(ctx); \
@@ -48,9 +43,56 @@
   duk_push_c_function(ctx, func, DUK_VARARGS); \
   duk_put_prop_string(ctx, -2, name); \
   duk_pop_2(ctx);
+///// BINDING API END
 
+///// GET API START
+#define JS_GET_OBJECT_ON_STASH(obj) \
+  duk_push_global_stash(ctx); \
+  duk_get_prop_string(ctx, -1, obj); \
+  duk_remove(ctx, -2); \
+
+#define JS_GET_GLOBAL_OBJECT \
+  duk_push_global_object(ctx);
+///// GET API END
+
+///// DELETE API START
+#define JS_DELETE_OBJECT_ON_STASH(obj) \
+  duk_push_global_stash(ctx); \
+  if (duk_has_prop_string(ctx, -1, obj)) \
+    duk_del_prop_string(ctx, -1, obj); \
+  duk_pop(ctx);
+///// DELETE API END
+
+///// EVAL API START
+#define JS_EVAL_WITH_RESULT(src) \
+  duk_eval_string(ctx, src);
+
+#define JS_EVAL(src) \
+  duk_eval_string(ctx, src); \
+  duk_pop(ctx);
+///// EVAL API END
+
+///// THROW API START
 #define JS_THROW(text) \
   duk_push_string(ctx, text); \
   duk_throw(ctx);
+///// THROW API END
+
+typedef struct {
+  int args[20]; // maxium : 20
+  int size;
+} lainjs_args_t;
+
+typedef struct {
+  int function;
+  lainjs_args_t args;
+} lainjs_func_t;
+
+lainjs_func_t* lainjs_create_func_t();
+void lainjs_set_function(lainjs_func_t *this_, int idx);
+void lainjs_add_argument(lainjs_func_t *this_, int idx);
+
+void lainjs_call_mathod_with_this(duk_context *ctx, lainjs_func_t *this_);
+void lainjs_eval_exception(duk_context *ctx, duk_int_t rc);
 
 #endif
