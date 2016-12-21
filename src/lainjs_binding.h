@@ -70,6 +70,18 @@
 #define JS_EVAL(src) \
   duk_eval_string(ctx, src); \
   duk_pop(ctx);
+
+#define JS_PEVAL(src) \
+  duk_int_t rc = duk_peval_string(ctx, src); \
+  lainjs_eval_exception(ctx, rc); \
+  duk_pop(ctx);
+
+#define JS_EVAL_WITHOUT_POP(src) \
+  duk_eval_string(ctx, src); \
+
+#define JS_PEVAL_WITHOUT_POP(src) \
+  duk_int_t rc = duk_peval_string(ctx, src); \
+  lainjs_eval_exception(ctx, rc);
 ///// EVAL API END
 
 ///// THROW API START

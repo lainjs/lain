@@ -52,9 +52,7 @@ int lainjs_process_binding_compile(duk_context *ctx) {
   assert(duk_get_top(ctx) == 1);
   assert(duk_is_string(ctx, 0));
 
-  duk_push_string(ctx, "eval");
-  duk_compile(ctx, DUK_COMPILE_EVAL);
-  duk_pcall(ctx, 0);
+  JS_EVAL_WITHOUT_POP(duk_get_string(ctx, 0))
 
   return 1;
 }
