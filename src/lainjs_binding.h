@@ -51,6 +51,10 @@
   duk_get_prop_string(ctx, -1, obj); \
   duk_remove(ctx, -2); \
 
+#define JS_GET_PROP_ON_OBJECT_AND_REMOVE(obj) \
+  duk_get_prop_string(ctx, -1, obj); \
+  duk_remove(ctx, -2); \
+
 #define JS_GET_GLOBAL_OBJECT \
   duk_push_global_object(ctx);
 ///// GET API END
@@ -90,6 +94,11 @@
   duk_throw(ctx);
 ///// THROW API END
 
+typedef enum {
+  LAIN_FALSE,
+  LAIN_TRUE
+} LAIN_BOOL;
+
 typedef struct {
   int args[20]; // maxium : 20
   int size;
@@ -101,10 +110,11 @@ typedef struct {
 } lainjs_func_t;
 
 lainjs_func_t* lainjs_create_func_t();
+void lainjs_free_func_t(lainjs_func_t *this_);
 void lainjs_set_function(lainjs_func_t *this_, int idx);
 void lainjs_add_argument(lainjs_func_t *this_, int idx);
 
-void lainjs_call_mathod_with_this(duk_context *ctx, lainjs_func_t *this_);
+void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this);
 void lainjs_eval_exception(duk_context *ctx, duk_int_t rc);
 
 #endif

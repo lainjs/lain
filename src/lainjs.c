@@ -55,7 +55,8 @@ void lainjs_start_main_js(duk_context *ctx) {
   lainjs_set_function(func, -1);
   lainjs_add_argument(func, -2);
   lainjs_add_argument(func, -3);
-  lainjs_call_mathod_with_this(ctx, func);
+  lainjs_call_mathod(ctx, func, LAIN_TRUE);
+  lainjs_free_func_t(func);
 }
 
 int lainjs_start(char** argv) {

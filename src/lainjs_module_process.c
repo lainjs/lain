@@ -75,14 +75,13 @@ int lainjs_process_binding_read_source(duk_context *ctx) {
 void lainjs_on_next_tick(duk_context *ctx) {
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-    duk_push_global_stash(ctx);
-    duk_get_prop_string(ctx, -1, module->module);
-    duk_get_prop_string(ctx, -1, "onNextTick");
+    JS_GET_OBJECT_ON_STASH(module->module)
+    JS_GET_PROP_ON_OBJECT_AND_REMOVE("onNextTick")
 
-    if (duk_is_callable(ctx, -1))
-      duk_call(ctx, 0);
-
-    duk_pop_2(ctx);
+    lainjs_func_t *func = lainjs_create_func_t();
+    lainjs_set_function(func, -1);
+    lainjs_call_mathod(ctx, func, LAIN_FALSE);
+    lainjs_free_func_t(func);
   }
 
   {

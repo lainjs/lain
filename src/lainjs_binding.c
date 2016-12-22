@@ -6,6 +6,11 @@ lainjs_func_t* lainjs_create_func_t() {
   return func;
 }
 
+void lainjs_free_func_t(lainjs_func_t *this_) {
+  if (this_)
+    free(this_);
+}
+
 void lainjs_set_function(lainjs_func_t *this_, int idx) {
   if (idx >= 0)
     return;
@@ -23,7 +28,7 @@ void lainjs_add_argument(lainjs_func_t *this_, int idx) {
   this_->args.args[this_->args.size++] = idx; 
 }
 
-void lainjs_call_mathod_with_this(duk_context *ctx, lainjs_func_t *this_) {
+void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this) {
   duk_dup(ctx, this_->function);
   duk_remove(ctx, this_->function - 1);
 
@@ -34,7 +39,12 @@ void lainjs_call_mathod_with_this(duk_context *ctx, lainjs_func_t *this_) {
       duk_remove(ctx, idx - 1);
   }
 
-  duk_int_t rc = duk_pcall_method(ctx, this_->args.size - 1);
+  duk_int_t rc;
+  if (has_this)
+    rc = duk_pcall_method(ctx, this_->args.size - 1);
+  else
+    rc = duk_pcall(ctx, this_->args.size);
+
   lainjs_eval_exception(ctx, rc);
 
   duk_pop(ctx); 
