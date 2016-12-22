@@ -56,3 +56,17 @@ void lainjs_eval_exception(duk_context *ctx, duk_int_t rc) {
     printf("Runtime Error : %s\n", duk_to_string(ctx, -1));
   }
 }
+
+char* lainjs_gen_key_on_stach(duk_context *ctx) {
+  duk_push_global_stash(ctx);
+  char *id = 0;
+  do {
+    if (id)
+      free(id);
+    id = lainjs_random_generate_id(20);
+  } while (duk_has_prop_string(ctx, -1, id));
+
+  duk_pop(ctx);
+
+  return id;
+}

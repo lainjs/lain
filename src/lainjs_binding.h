@@ -24,10 +24,21 @@
 #include <stdio.h>
 #include "duktape.h"
 
-///// BINDING API START
+///// 'CREATE' API START
+#define JS_CREATE_OBJECT \
+  duk_push_object(ctx);
+///// CREATE API END
+
+///// 'BINDING' API START
 #define JS_BINDING_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_push_object(ctx); \
+  duk_put_prop_string(ctx, -2, obj); \
+  duk_pop(ctx);
+
+#define JS_BINDING_THIS_ON_STASH(obj) \
+  duk_push_global_stash(ctx); \
+  JS_GET_THIS \
   duk_put_prop_string(ctx, -2, obj); \
   duk_pop(ctx);
 
@@ -43,9 +54,24 @@
   duk_push_c_function(ctx, func, DUK_VARARGS); \
   duk_put_prop_string(ctx, -2, name); \
   duk_pop_2(ctx);
+
+#define JS_BINDING_FUNC_ON_OBJECT(func, name) \
+  duk_push_c_function(ctx, func, DUK_VARARGS); \
+  duk_put_prop_string(ctx, -2, name);
+
+#define JS_BINDING_OBJECT_ON_THIS(idx, name) \
+  JS_GET_THIS \
+  duk_dup(ctx, idx); \
+  duk_put_prop_string(ctx, -2, name); \
+  duk_pop(ctx);
+
+//FIXME(hyunjune)
+#define JS_BIDNING_NATIVE_ON_OBJECT(native) \
+  duk_push_pointer(ctx, native); \
+  duk_put_prop_string(ctx, -2, "##native##");
 ///// BINDING API END
 
-///// GET API START
+///// 'GET' API START
 #define JS_GET_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_get_prop_string(ctx, -1, obj); \
@@ -57,9 +83,27 @@
 
 #define JS_GET_GLOBAL_OBJECT \
   duk_push_global_object(ctx);
+
+#define JS_GET_THIS \
+  duk_push_this(ctx);
+
+//FIXME(hyunjune)
+#define JS_GET_NATIVE_OBJECT_ON_THIS(var) \
+  JS_GET_THIS \
+  duk_get_prop_string(ctx, -1, "##native##"); \
+  duk_remove(ctx, -2); \
+  var = duk_get_pointer(ctx, -1); \
+  duk_pop(ctx);
+
+#define JS_GET_FUNCTION_ARGS_LENGS(name) \
+  unsigned long name = duk_get_top(ctx);
+
+#define JS_GET_NUMBER(idx, var) \
+  double var = duk_to_number(ctx, idx);
+
 ///// GET API END
 
-///// DELETE API START
+///// 'DELETE' API START
 #define JS_DELETE_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   if (duk_has_prop_string(ctx, -1, obj)) \
@@ -67,7 +111,7 @@
   duk_pop(ctx);
 ///// DELETE API END
 
-///// EVAL API START
+///// 'EVAL' API START
 #define JS_EVAL_WITH_RESULT(src) \
   duk_eval_string(ctx, src);
 
@@ -88,7 +132,7 @@
   lainjs_eval_exception(ctx, rc);
 ///// EVAL API END
 
-///// THROW API START
+///// 'THROW' API START
 #define JS_THROW(text) \
   duk_push_string(ctx, text); \
   duk_throw(ctx);
@@ -100,7 +144,8 @@ typedef enum {
 } LAIN_BOOL;
 
 typedef struct {
-  int args[20]; // maxium : 20
+  // maxium : 20
+  int args[20];
   int size;
 } lainjs_args_t;
 
@@ -116,5 +161,7 @@ void lainjs_add_argument(lainjs_func_t *this_, int idx);
 
 void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this);
 void lainjs_eval_exception(duk_context *ctx, duk_int_t rc);
+
+char* lainjs_gen_key_on_stach(duk_context *ctx);
 
 #endif

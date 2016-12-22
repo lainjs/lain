@@ -32,78 +32,83 @@
 
 #include "uv.h"
 
-struct timer {
+typedef struct timer {
   uv_timer_t handle;
-  void* obj;
+  char* obj;
   int64_t timeout;
   int64_t repeat;
   duk_context *ctx;
-};
+} lainjs_timer_t;
 
-static void lainjs_on_timeout(struct timer *timer) {
-  duk_context *ctx = timer->ctx;
-  duk_push_heapptr(ctx, timer->obj);
-  duk_get_prop_string(ctx, -1, "##callback##");
-
-  if (duk_is_callable(ctx, -1)) {
-    duk_dup(ctx, -2);
-    duk_call_method(ctx, 0);
-
-    lainjs_on_next_tick(ctx);
-    if (!timer->repeat)
-      free(timer);
-  } else {
+void lainjs_destroy_timer_t(lainjs_timer_t *timer) {
+  if (timer) {
+    free(timer->obj);
     free(timer);
   }
+}
 
-  duk_pop_2(ctx);
+static void lainjs_on_timeout(lainjs_timer_t *timer) {
+  duk_context *ctx = timer->ctx;
+  JS_GET_OBJECT_ON_STASH(timer->obj)
+
+  JS_GET_OBJECT_ON_STASH(timer->obj)
+  JS_GET_PROP_ON_OBJECT_AND_REMOVE("##callback##")
+
+  lainjs_func_t *func = lainjs_create_func_t();
+  lainjs_set_function(func, -1);
+  lainjs_add_argument(func, -2);
+  lainjs_call_mathod(ctx, func, LAIN_TRUE);
+  lainjs_free_func_t(func);
+
+  lainjs_on_next_tick(ctx);
+
+  if (!timer->repeat)
+    lainjs_destroy_timer_t(timer);
 }
 
 static void lainjs_timer_timeout(uv_timer_t* handle) {
-  struct timer *timer = (struct timer*)handle->data;
+  lainjs_timer_t *timer = (lainjs_timer_t*)handle->data;
   assert(&timer->handle == handle);
   if (timer)
     lainjs_on_timeout(timer);
 }
 
 int lainjs_start_timer(duk_context *ctx) {
-  unsigned long args_lens = duk_get_top(ctx);
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
+
   assert(args_lens >= 3);
   if (!(args_lens >= 3)) return 0;
   if (!duk_is_function(ctx, 2)) return 0;
-  double timeout = duk_to_number(ctx, 0);
-  double repeat = duk_to_number(ctx, 1);
 
-  duk_push_this(ctx);
-  duk_get_prop_string(ctx, -1, "##native##");
-  struct timer *timer = (struct timer *)duk_get_pointer(ctx, -1);
-  duk_pop(ctx);
+  JS_GET_NUMBER(0, timeout)
+  JS_GET_NUMBER(1, repeat)
 
-  duk_dup(ctx, 2);
-  duk_put_prop_string(ctx, -2, "##callback##");
+  JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_timer_t *timer)
+  JS_BINDING_OBJECT_ON_THIS(2, "##callback##");
+ 
+  timer->obj = lainjs_gen_key_on_stach(ctx);
+  JS_BINDING_THIS_ON_STASH(timer->obj)
 
-  timer->obj = duk_get_heapptr(ctx, -1);
   timer->timeout = timeout;
   timer->repeat = repeat;
   int err = uv_timer_start(&timer->handle, lainjs_timer_timeout,
                        timeout, repeat);
-  duk_pop(ctx);
   return 0;
 }
 
 int lainjs_stop_timer(duk_context *ctx) {
-  duk_push_this(ctx);
-  duk_get_prop_string(ctx, -1, "##native##");
-  struct timer *timer = (struct timer *)duk_get_pointer(ctx, -1);
-  duk_pop_2(ctx);
+  JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_timer_t *timer)
 
   if (!timer)
     printf("ERR : invalid timer\n");
 
+  JS_DELETE_OBJECT_ON_STASH(timer->obj)
+
   int err = uv_timer_stop(&timer->handle);
 
-  duk_push_heapptr(ctx, timer->obj);
-  free(timer);
+  if (timer)
+    lainjs_destroy_timer_t(timer);
+
   return 0;
 }
 
@@ -111,23 +116,20 @@ int lainjs_construct_timer(duk_context *ctx) {
   if (!duk_is_constructor_call(ctx))
     return 0;
 
-  struct timer *timer = (struct timer*) malloc(sizeof(struct timer));
-  if (!timer) {
-    duk_pop(ctx);
+  lainjs_timer_t *timer = (lainjs_timer_t*) malloc(sizeof(lainjs_timer_t));
+
+  if (!timer)
     return 0;
-  }
 
-  duk_push_object(ctx);
-  duk_push_c_function(ctx, lainjs_start_timer, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, "start");
-  duk_push_c_function(ctx, lainjs_stop_timer, DUK_VARARGS);
-  duk_put_prop_string(ctx, -2, "stop");
+  JS_CREATE_OBJECT
+  JS_BINDING_FUNC_ON_OBJECT(lainjs_start_timer, "start")
+  JS_BINDING_FUNC_ON_OBJECT(lainjs_stop_timer, "stop")
+  JS_BIDNING_NATIVE_ON_OBJECT(timer)
 
+  // uv
   uv_timer_init(lainjs_get_envronment(ctx)->loop, &(timer->handle));
   timer->handle.data = timer;
   timer->ctx = ctx;
-  duk_push_pointer(ctx, (void *)timer);
-  duk_put_prop_string(ctx, -2, "##native##");
 
   return 1;
 }
