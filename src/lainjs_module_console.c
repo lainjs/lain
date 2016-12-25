@@ -27,7 +27,7 @@
 #include "lainjs_module_console.h"
 
 static void print(duk_context *ctx, FILE* out_f) {
-  unsigned long args_lens = duk_get_top(ctx);
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
   register int index;
   for (index = 0; index < args_lens; index++) {
     fprintf(out_f, "%s ", duk_to_string(ctx, index));
