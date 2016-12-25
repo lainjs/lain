@@ -24,12 +24,11 @@
 #include <stdio.h>
 #include "duktape.h"
 
-///// 'CREATE' API START
+///// 'CREATE' TYPE
 #define JS_CREATE_OBJECT \
   duk_push_object(ctx);
-///// CREATE API END
 
-///// 'BINDING' API START
+///// 'BINDING' TYPE
 #define JS_BINDING_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_push_object(ctx); \
@@ -65,17 +64,24 @@
   duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
-//FIXME(hyunjune)
+#define JS_BINDING_NATIVE_ON_OBJECT_WITH_NAME(obj, native, name) \
+  duk_dup(ctx, obj); \
+  duk_push_pointer(ctx, native); \
+  duk_put_prop_string(ctx, -2, name); \
+  duk_pop(ctx);
+
 #define JS_BIDNING_NATIVE_ON_OBJECT(native) \
   duk_push_pointer(ctx, native); \
   duk_put_prop_string(ctx, -2, "##native##");
-///// BINDING API END
 
-///// 'GET' API START
+///// 'GET' TYPE
 #define JS_GET_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   duk_get_prop_string(ctx, -1, obj); \
   duk_remove(ctx, -2); \
+
+#define JS_GET_PROP_ON_OBJECT(idx, obj) \
+  duk_get_prop_string(ctx, idx, obj); \
 
 #define JS_GET_PROP_ON_OBJECT_AND_REMOVE(obj) \
   duk_get_prop_string(ctx, -1, obj); \
@@ -87,7 +93,6 @@
 #define JS_GET_THIS \
   duk_push_this(ctx);
 
-//FIXME(hyunjune)
 #define JS_GET_NATIVE_OBJECT_ON_THIS(var) \
   JS_GET_THIS \
   duk_get_prop_string(ctx, -1, "##native##"); \
@@ -95,23 +100,58 @@
   var = duk_get_pointer(ctx, -1); \
   duk_pop(ctx);
 
+#define JS_GET_NATIVE_OBJECT_ON_INDEX(idx, var) \
+  duk_get_prop_string(ctx, idx, "##native##"); \
+  var = (char*)duk_get_pointer(ctx, -1); \
+  duk_pop(ctx);
+
+#define JS_GET_INT_ON_THIS(var, name) \
+  JS_GET_THIS \
+  duk_get_prop_string(ctx, -1, name); \
+  int var = duk_get_int(ctx, -1); \
+  duk_pop_2(ctx);
+
+#define JS_GET_INT_ON_INDEX(idx, var, name) \
+  duk_get_prop_string(ctx, idx, name); \
+  int var = duk_get_int(ctx, -1); \
+  duk_pop(ctx);
+
 #define JS_GET_FUNCTION_ARGS_LENGS(name) \
   unsigned long name = duk_get_top(ctx);
 
+#define JS_GET_STRING(idx, var) \
+  const char* var = duk_get_string(ctx, idx);
+
 #define JS_GET_NUMBER(idx, var) \
-  double var = duk_to_number(ctx, idx);
+  double var = duk_get_number(ctx, idx);
 
-///// GET API END
+#define JS_GET_INT(idx, var) \
+  int var = duk_get_int(ctx, idx);
 
-///// 'DELETE' API START
+#define JS_GET_INT_WITHOUT_TYPE(idx, var) \
+  var = duk_get_int(ctx, idx);
+
+#define JS_GET_INT_PROP_ON_THIS(var, name) \
+  JS_GET_THIS \
+  JS_GET_PROP_ON_OBJECT_AND_REMOVE(name) \
+  JS_GET_INT(-1, var) \
+  duk_pop(ctx); \
+
+///// 'PUSH' TYPE
+#define JS_PUSH_INT(val) \
+  duk_push_int(ctx, val);
+
+#define JS_PUSH_STRING(val) \
+  duk_push_string(ctx, val);
+
+///// 'DELETE' TYPE
 #define JS_DELETE_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   if (duk_has_prop_string(ctx, -1, obj)) \
     duk_del_prop_string(ctx, -1, obj); \
   duk_pop(ctx);
-///// DELETE API END
 
-///// 'EVAL' API START
+///// 'EVAL' TYPE
 #define JS_EVAL_WITH_RESULT(src) \
   duk_eval_string(ctx, src);
 
@@ -130,13 +170,10 @@
 #define JS_PEVAL_WITHOUT_POP(src) \
   duk_int_t rc = duk_peval_string(ctx, src); \
   lainjs_eval_exception(ctx, rc);
-///// EVAL API END
 
-///// 'THROW' API START
 #define JS_THROW(text) \
   duk_push_string(ctx, text); \
   duk_throw(ctx);
-///// THROW API END
 
 typedef enum {
   LAIN_FALSE,
