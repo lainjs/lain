@@ -44,7 +44,7 @@ void lainjs_setup_modules(duk_context *ctx) {
 }
 
 void lainjs_start_main_js(duk_context *ctx) {
-  JS_GET_OBJECT_ON_STASH("process")
+  JS_GET_PROP_ON_STASH("process")
   JS_GET_GLOBAL_OBJECT
 
   JS_EVAL_WITH_RESULT(mainjs)
@@ -70,7 +70,7 @@ int lainjs_start(char** argv) {
 
   // FIXME : cleanly make it.
   {
-    JS_GET_OBJECT_ON_STASH("process")
+    JS_GET_PROP_ON_STASH("process")
 
     duk_idx_t arr_idx;
     arr_idx = duk_push_array(ctx);

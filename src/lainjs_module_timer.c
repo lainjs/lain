@@ -49,10 +49,10 @@ void lainjs_destroy_timer_t(lainjs_timer_t *timer) {
 
 static void lainjs_on_timeout(lainjs_timer_t *timer) {
   duk_context *ctx = timer->ctx;
-  JS_GET_OBJECT_ON_STASH(timer->obj)
+  JS_GET_PROP_ON_STASH(timer->obj)
 
-  JS_GET_OBJECT_ON_STASH(timer->obj)
-  JS_GET_PROP_ON_OBJECT_AND_REMOVE("##callback##")
+  JS_GET_PROP_ON_STASH(timer->obj)
+  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "##callback##")
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);

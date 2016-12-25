@@ -75,8 +75,8 @@ int lainjs_process_binding_read_source(duk_context *ctx) {
 void lainjs_on_next_tick(duk_context *ctx) {
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-    JS_GET_OBJECT_ON_STASH(module->module)
-    JS_GET_PROP_ON_OBJECT_AND_REMOVE("onNextTick")
+    JS_GET_PROP_ON_STASH(module->module)
+    JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "onNextTick")
 
     lainjs_func_t *func = lainjs_create_func_t();
     lainjs_set_function(func, -1);

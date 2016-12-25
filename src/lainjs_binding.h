@@ -54,10 +54,6 @@
   duk_put_prop_string(ctx, -2, name); \
   duk_pop_2(ctx);
 
-#define JS_BINDING_FUNC_ON_OBJECT(func, name) \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name);
-
 #define JS_BINDING_OBJECT_ON_THIS(idx, name) \
   JS_GET_THIS \
   duk_dup(ctx, idx); \
@@ -70,28 +66,34 @@
   duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
+#define JS_BINDING_FUNC_ON_OBJECT(func, name) \
+  duk_push_c_function(ctx, func, DUK_VARARGS); \
+  duk_put_prop_string(ctx, -2, name);
+
 #define JS_BIDNING_NATIVE_ON_OBJECT(native) \
   duk_push_pointer(ctx, native); \
   duk_put_prop_string(ctx, -2, "##native##");
 
 ///// 'GET' TYPE
-#define JS_GET_OBJECT_ON_STASH(obj) \
-  duk_push_global_stash(ctx); \
-  duk_get_prop_string(ctx, -1, obj); \
-  duk_remove(ctx, -2); \
-
-#define JS_GET_PROP_ON_OBJECT(idx, obj) \
-  duk_get_prop_string(ctx, idx, obj); \
-
-#define JS_GET_PROP_ON_OBJECT_AND_REMOVE(obj) \
-  duk_get_prop_string(ctx, -1, obj); \
-  duk_remove(ctx, -2); \
-
 #define JS_GET_GLOBAL_OBJECT \
   duk_push_global_object(ctx);
 
 #define JS_GET_THIS \
   duk_push_this(ctx);
+
+#define JS_GET_PROP_ON_STASH(name) \
+  duk_push_global_stash(ctx); \
+  duk_get_prop_string(ctx, -1, name); \
+  duk_remove(ctx, -2); \
+
+#define JS_GET_PROP_ON_OBJECT(idx, name) \
+  duk_dup(ctx, idx); \
+  duk_get_prop_string(ctx, -1, name); \
+  duk_remove(ctx, -2);
+
+#define JS_GET_PROP_ON_IDEX_AND_REMOVE(idx, obj) \
+  duk_get_prop_string(ctx, idx, obj); \
+  duk_remove(ctx, idx - 1); \
 
 #define JS_GET_NATIVE_OBJECT_ON_THIS(var) \
   JS_GET_THIS \
@@ -105,37 +107,37 @@
   var = (char*)duk_get_pointer(ctx, -1); \
   duk_pop(ctx);
 
+#define JS_GET_INT(idx, var) \
+  int var = duk_get_int(ctx, idx);
+
 #define JS_GET_INT_ON_THIS(var, name) \
   JS_GET_THIS \
   duk_get_prop_string(ctx, -1, name); \
   int var = duk_get_int(ctx, -1); \
   duk_pop_2(ctx);
 
+#define JS_GET_INT_PROP_ON_THIS(var, name) \
+  JS_GET_THIS \
+  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, name) \
+  JS_GET_INT(-1, var) \
+  duk_pop(ctx); \
+
 #define JS_GET_INT_ON_INDEX(idx, var, name) \
   duk_get_prop_string(ctx, idx, name); \
   int var = duk_get_int(ctx, -1); \
   duk_pop(ctx);
+
+#define JS_GET_INT_WITHOUT_TYPE(idx, var) \
+  var = duk_get_int(ctx, idx);
+
+#define JS_GET_NUMBER(idx, var) \
+  double var = duk_get_number(ctx, idx);
 
 #define JS_GET_FUNCTION_ARGS_LENGS(name) \
   unsigned long name = duk_get_top(ctx);
 
 #define JS_GET_STRING(idx, var) \
   const char* var = duk_get_string(ctx, idx);
-
-#define JS_GET_NUMBER(idx, var) \
-  double var = duk_get_number(ctx, idx);
-
-#define JS_GET_INT(idx, var) \
-  int var = duk_get_int(ctx, idx);
-
-#define JS_GET_INT_WITHOUT_TYPE(idx, var) \
-  var = duk_get_int(ctx, idx);
-
-#define JS_GET_INT_PROP_ON_THIS(var, name) \
-  JS_GET_THIS \
-  JS_GET_PROP_ON_OBJECT_AND_REMOVE(name) \
-  JS_GET_INT(-1, var) \
-  duk_pop(ctx); \
 
 ///// 'PUSH' TYPE
 #define JS_PUSH_INT(val) \
