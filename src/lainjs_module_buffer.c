@@ -44,7 +44,8 @@ int Write(duk_context *ctx) {
   JS_GET_INT_PROP_ON_THIS(buffer_length, "length")
   assert(buffer_length >= offset + length);
 
-  for (int i = 0; i < length; ++i) {
+  int i;
+  for (i = 0; i < length; ++i) {
     *(buffer + offset + i) = *(str + i);
   }
 
@@ -93,8 +94,9 @@ int Copy(duk_context *ctx) {
     }
   }
 
+  int i, j;
   int copied = 0;
-  for (int i = source_start, j = target_start;
+  for (i = source_start, j = target_start;
        i < source_end && j < target_length;
        ++i, ++j) {
     *(target_buffer + j) = *(source_buffer + i);
