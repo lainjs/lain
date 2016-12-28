@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include "duktape.h"
 
+#include "lainjs_util.h"
+
 ///// 'CREATE' TYPE
 #define JS_CREATE_OBJECT \
   duk_push_object(ctx);
@@ -39,6 +41,12 @@
   duk_push_global_stash(ctx); \
   JS_GET_THIS \
   duk_put_prop_string(ctx, -2, obj); \
+  duk_pop(ctx);
+
+#define JS_BINDING_INDEX_ON_STASH(idx, name) \
+  duk_push_global_stash(ctx); \
+  duk_dup(ctx, idx); \
+  duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
 #define JS_BINDING_FUNC_ON_STASH(func, name) \
@@ -146,12 +154,28 @@
 #define JS_PUSH_STRING(val) \
   duk_push_string(ctx, val);
 
+#define JS_PUSH_NULL \
+  duk_push_null(ctx);
+
 ///// 'DELETE' TYPE
 #define JS_DELETE_OBJECT_ON_STASH(obj) \
   duk_push_global_stash(ctx); \
   if (duk_has_prop_string(ctx, -1, obj)) \
     duk_del_prop_string(ctx, -1, obj); \
   duk_pop(ctx);
+
+///// 'CHECK' TYPE
+#define JS_IS_STRING(idx) \
+  duk_is_string(ctx, idx)
+
+#define JS_IS_NUMBER(idx) \
+  duk_is_number(ctx, idx)
+
+#define JS_IS_OBJECT(idx) \
+  duk_is_object(ctx, idx)
+
+#define JS_IS_FUNCTION(idx) \
+  duk_is_function(ctx, idx)
 
 ///// 'EVAL' TYPE
 #define JS_EVAL_WITH_RESULT(src) \

@@ -33,56 +33,66 @@
 
 // FIXME : We need to clean up it.
 typedef struct {
-  // Make wrapper...
   duk_context *ctx;
   void *callback;
-  //
   uv_fs_t req;
-} lainjs_fsreqwrap_t;
+} lainjs_fs_req_t;
+
+lainjs_fs_req_t* lainjs_create_fs_req() {
+  return malloc(sizeof(lainjs_fs_req_t));
+}
+
+void lainjs_destroy_fs_req(lainjs_fs_req_t* req) {
+  duk_context *ctx = req->ctx;
+
+  JS_DELETE_OBJECT_ON_STASH(req->callback)
+
+  free(req);
+}
 
 static void After(uv_fs_t* req) {
-  lainjs_fsreqwrap_t *req_wrap = (lainjs_fsreqwrap_t*) req->data;
+  lainjs_fs_req_t *req_wrap = (lainjs_fs_req_t*) req->data;
   assert(req_wrap != NULL);
   assert(req_wrap->req == req);
   duk_context *ctx = req_wrap->ctx;
 
-  duk_push_global_stash(ctx);
-  duk_get_prop_string(ctx, -1, req_wrap->callback);
-
   if (req->result < 0) {
-    //FIXEM
-    duk_push_string(ctx, CreateUVException(req->result, "uv_fs_function"));
+    JS_PUSH_STRING(CreateUVException(req->result, "uv_fs_function"))
   } else {
-      duk_push_null(ctx);
     switch (req->fs_type) {
       case UV_FS_OPEN:
       case UV_FS_READ:
       {
-        duk_push_number(ctx, req->result);
+        JS_PUSH_INT(req->result)
         break;
       }
       default:
-        duk_push_null(ctx);
+        JS_PUSH_NULL
     }
+    JS_PUSH_NULL
   }
 
-  // FIXME : we need changing to 'duk_pcall_method'.
+  JS_GET_PROP_ON_STASH(req_wrap->callback)
+
+  lainjs_func_t *func = lainjs_create_func_t();
+  lainjs_set_function(func, -1);
   if (req->result < 0) {
-    duk_call(ctx, 1);
+    lainjs_add_argument(func, -2);
   } else {
-    duk_call(ctx, 2);
+    lainjs_add_argument(func, -2);
+    lainjs_add_argument(func, -3);
   }
-  duk_pop_2(ctx);
+  lainjs_call_mathod(ctx, func, LAIN_FALSE);
+  lainjs_free_func_t(func);
 
   uv_fs_req_cleanup(req);
 
-  // We must remove id and object registered on stash...
-  free(req_wrap); 
+  lainjs_destroy_fs_req(req_wrap);
 }
 
 #define FS_ASYNC(env, syscall, pcallback, ...) \
-  lainjs_fsreqwrap_t *req_wrap = \
-    (lainjs_fsreqwrap_t*)malloc(sizeof(lainjs_fsreqwrap_t)); \
+  lainjs_fs_req_t *req_wrap = \
+    lainjs_create_fs_req(); \
   req_wrap->callback = pcallback; \
   uv_fs_t* fs_req = &(req_wrap->req); \
   req_wrap->ctx = ctx; \
@@ -95,7 +105,7 @@ static void After(uv_fs_t* req) {
     fs_req->result = err; \
     After(fs_req); \
   } \
-  duk_push_null(ctx); \
+  JS_PUSH_NULL \
 
 #define FS_SYNC(env, syscall, ...) \
   uv_fs_t fs_req; \
@@ -106,11 +116,11 @@ static void After(uv_fs_t* req) {
   if (err < 0) { \
     JS_THROW(CreateUVException(err, #syscall)) \
   } else { \
-    duk_push_number(ctx, err);\
+    JS_PUSH_INT(err) \
   } \
 
 int lainjs_fs_binding_open(duk_context *ctx) {
-  unsigned long args_lens = duk_get_top(ctx);
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
 
   if (args_lens < 1) {
     JS_THROW("path required");
@@ -120,11 +130,11 @@ int lainjs_fs_binding_open(duk_context *ctx) {
     JS_THROW("mode required");
   }
 
-  if (!duk_is_string(ctx, 0)) {
+  if (!JS_IS_STRING(0)) {
     JS_THROW("path must be a string");
-  } else if (!duk_is_number(ctx, 1)) {
+  } else if (!JS_IS_NUMBER(1)) {
     JS_THROW("flags must be an int");
-  } else if (!duk_is_number(ctx, 2)) {
+  } else if (!JS_IS_NUMBER(2)) {
     JS_THROW("mode must be an int");
   }
 
@@ -134,12 +144,9 @@ int lainjs_fs_binding_open(duk_context *ctx) {
   int flags = duk_get_int(ctx, 1);
   int mode = duk_get_int(ctx, 2);;
 
-  if (args_lens > 3 && duk_is_function(ctx, 3)) {
-    char* object_id = lainjs_random_generate_id(20);
-    duk_push_global_stash(ctx);
-    duk_dup(ctx, 3);
-    duk_put_prop_string(ctx, -2, object_id);
-    duk_pop(ctx);
+  if (args_lens > 3 && JS_IS_FUNCTION(3)) {
+    char* object_id = lainjs_gen_key_on_stach(ctx);
+    JS_BINDING_INDEX_ON_STASH(3, object_id)
     FS_ASYNC(env, open, object_id, path, flags, mode);
   } else {
     FS_SYNC(env, open, path, flags, mode);
@@ -149,7 +156,7 @@ int lainjs_fs_binding_open(duk_context *ctx) {
 }
 
 int lainjs_fs_binding_read(duk_context *ctx) {
-  unsigned long args_lens = duk_get_top(ctx);
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
 
   if (args_lens < 1) {
     JS_THROW("fd required");
@@ -163,15 +170,15 @@ int lainjs_fs_binding_read(duk_context *ctx) {
     JS_THROW("position required");
   }
 
-  if (!duk_is_number(ctx, 0)) {
+  if (!JS_IS_NUMBER(0)) {
     JS_THROW("fd must be an int");
-  } else if (!duk_is_object(ctx, 1)) {
+  } else if (!JS_IS_OBJECT(1)) {
     JS_THROW("buffer must be a Buffer");
-  } else if (!duk_is_number(ctx, 2)) {
+  } else if (!JS_IS_NUMBER(2)) {
     JS_THROW("offset must be an int");
-  } else if (!duk_is_number(ctx, 3)) {
+  } else if (!JS_IS_NUMBER(3)) {
     JS_THROW("length must be an int");
-  } else if (!duk_is_number(ctx, 4)) {
+  } else if (!JS_IS_NUMBER(4)) {
     JS_THROW("position must be an int");
   }
 
@@ -200,7 +207,7 @@ int lainjs_fs_binding_read(duk_context *ctx) {
 
   uv_buf_t uvbuf = uv_buf_init(buffer + offset, length);
 
-  if (args_lens > 5 && duk_is_function(ctx, 5)) {
+  if (args_lens > 5 && JS_IS_FUNCTION(5)) {
     char* object_id = lainjs_random_generate_id(20);
     duk_push_global_stash(ctx);
     duk_dup(ctx, 5);
