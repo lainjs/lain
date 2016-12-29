@@ -40,8 +40,14 @@ typedef struct timer {
   duk_context *ctx;
 } lainjs_timer_t;
 
+lainjs_timer_t* lainjs_create_timer_t() {
+  return malloc(sizeof(lainjs_timer_t));
+}
+
 void lainjs_destroy_timer_t(lainjs_timer_t *timer) {
   if (timer) {
+    duk_context *ctx = timer->ctx;
+    JS_DELETE_OBJECT_ON_STASH(timer->obj)
     free(timer->obj);
     free(timer);
   }
@@ -116,7 +122,7 @@ int lainjs_construct_timer(duk_context *ctx) {
   if (!duk_is_constructor_call(ctx))
     return 0;
 
-  lainjs_timer_t *timer = (lainjs_timer_t*) malloc(sizeof(lainjs_timer_t));
+  lainjs_timer_t *timer = lainjs_create_timer_t();
 
   if (!timer)
     return 0;
