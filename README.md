@@ -3,7 +3,8 @@ Lain.js
 
 ## How to Start
 ### How to Build
-1. $./build/build
+1. $sudo apt-get install gyp cmake
+2. $./build/build
 
 ### How to Run
 1. $cd ./test
