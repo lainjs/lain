@@ -140,12 +140,13 @@ int lainjs_fs_binding_open(duk_context *ctx) {
 
   struct env *env = lainjs_get_envronment(ctx);
 
-  const char* path = duk_get_string(ctx, 0);
-  int flags = duk_get_int(ctx, 1);
-  int mode = duk_get_int(ctx, 2);;
+  JS_GET_STRING(0, path)
+  JS_GET_INT(1, flags)
+  JS_GET_INT(2, mode)
 
   if (args_lens > 3 && JS_IS_FUNCTION(3)) {
     char* object_id = lainjs_gen_key_on_stach(ctx);
+    // Binding function on stash.
     JS_BINDING_INDEX_ON_STASH(3, object_id)
     FS_ASYNC(env, open, object_id, path, flags, mode);
   } else {
@@ -184,18 +185,15 @@ int lainjs_fs_binding_read(duk_context *ctx) {
 
   struct env *env = lainjs_get_envronment(ctx);
 
-  int fd = duk_get_number(ctx, 0);
-  int offset = duk_get_number(ctx, 2);
-  int length = duk_get_number(ctx, 3);
-  int position = duk_get_number(ctx, 4);
+  JS_GET_INT(0, fd)
+  JS_GET_INT(2, offset)
+  JS_GET_INT(3, length)
+  JS_GET_INT(4, position)
 
-  // "Check"
-  duk_get_prop_string(ctx, 1, "##native##");
-  char* buffer = (char*)duk_get_pointer(ctx, -1);
+  //TODO : Check it.
+  JS_GET_NATIVE_OBJECT_ON_INDEX(1, char* buffer)
 
-  duk_get_prop_string(ctx, 1, "length");
-  int buffer_length = duk_get_number(ctx, -1);
-  duk_pop_2(ctx);
+  JS_GET_INT_ON_INDEX(1, buffer_length, "length")
 
   if (offset >= buffer_length) {
     JS_THROW("offset out of bound");
@@ -208,11 +206,10 @@ int lainjs_fs_binding_read(duk_context *ctx) {
   uv_buf_t uvbuf = uv_buf_init(buffer + offset, length);
 
   if (args_lens > 5 && JS_IS_FUNCTION(5)) {
-    char* object_id = lainjs_random_generate_id(20);
-    duk_push_global_stash(ctx);
-    duk_dup(ctx, 5);
-    duk_put_prop_string(ctx, -2, object_id);
-    duk_pop(ctx);
+    char* object_id = lainjs_gen_key_on_stach(ctx);
+    // Binding function on stash.
+    JS_BINDING_INDEX_ON_STASH(5, object_id)
+
     FS_ASYNC(env, read, object_id, fd, &uvbuf, 1, position);
   } else {
     FS_SYNC(env, read, fd, &uvbuf, 1, position);

@@ -118,6 +118,9 @@
 #define JS_GET_INT(idx, var) \
   int var = duk_get_int(ctx, idx);
 
+#define JS_GET_STRING(idx, var) \
+  const char* var = duk_get_string(ctx, idx);
+
 #define JS_GET_INT_ON_THIS(var, name) \
   JS_GET_THIS \
   duk_get_prop_string(ctx, -1, name); \
