@@ -26,6 +26,29 @@
 #include "lainjs_module_process.h"
 #include "lainjs_util.h"
 
+int lainjs_process_binding_wrapping_as_function(duk_context *ctx) {
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
+
+  assert(args_lengs == 1);
+  JS_GET_STRING(0, source)
+
+  const char *wrapper[2] = {"(function (exports, require, module) {\n", "\n});\n"};
+
+  int len = strlen(source)+ strlen(wrapper[0]) + strlen(wrapper[1]);
+
+  char *code = lainjs_alloc_char_buffer(len + 1);
+
+  strcpy(code,wrapper[0]);
+  strcat(code,source);
+  strcat(code,wrapper[1]);
+
+  JS_EVAL_WITHOUT_POP(code)
+
+  free(code);
+
+  return 1;
+}
+
 int lainjs_process_binding_binding(duk_context *ctx) {
   assert(duk_get_top(ctx) == 1);
   int kind = (int)duk_to_number(ctx, 0);
@@ -126,6 +149,10 @@ void lainjs_init_process(duk_context *ctx) {
   JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
                                         lainjs_process_binding_read_source,
                                         "readSource")
+
+  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+                                        lainjs_process_binding_wrapping_as_function,
+                                        "wrappingAsFunction")
 
   duk_push_global_stash(ctx);
   duk_get_prop_string(ctx, -1, module->module);
