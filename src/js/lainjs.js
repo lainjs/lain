@@ -37,6 +37,7 @@
     global.root = global;
     global.console =  process.binding(process.binding.console);
     global.Buffer = Native.require('buffer');
+    init_timer();
   };
 
   function init_process() {
@@ -69,6 +70,28 @@
       process.onNextTick = onNextTick;
     }
   };
+
+  function init_timer() {
+    global.setTimeout = function(callback, delay) {
+      var timer = Native.require('timer');
+      return timer.setTimeout(callback, delay);
+    };
+
+    global.setInterval = function(callback, repeat) {
+      var timer = Native.require('timer');
+      return timer.setInterval(callback, repeat);
+    };
+
+    global.clearTimeout = function(timerobj) {
+      var timer = Native.require('timer');
+      return timer.clearTimeout(timerobj);
+    };
+
+    global.clearInterval = function(timerobj) {
+      var timer = Native.require('timer');
+      return timer.clearInterval(timerobj);
+    };
+  }
 
   function Native(id) {
     this.id = id;

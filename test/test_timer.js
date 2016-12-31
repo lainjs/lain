@@ -19,23 +19,16 @@
  * THE SOFTWARE.
  */
 
-this.global = this;
-var global = this.global;
-global.Timer = process.binding(process.binding.timer);
+var T1 = setTimeout(function() {
+  console.log("T1 fired");
+}, 500);
 
-var timerobj = new Timer();
-timerobj.start(500, 0, function() {
-  console.log("JS Timer fired");
-});
-console.log("JS Timer timeout in 500 msec...");
+var timer_count = 0;
 
-var repeat_cnt = 1;
-var timerobj2 = new Timer();
-timerobj2.start(400, 100, function() {
-  console.log("Js Timer repeat #" + repeat_cnt);
-  if (repeat_cnt >= 5) {
-    timerobj2.stop();
+var T2 = setInterval(function() {
+  console.log("T2 fired " + (timer_count + 1));
+  timer_count++;
+  if (timer_count > 9) {
+    clearInterval(T2);
   }
-  repeat_cnt++;
-});
-console.log("JS Timer repeat in 400 msec, 100 msec interval, 5 times...");
+}, 100);

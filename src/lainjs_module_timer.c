@@ -68,8 +68,7 @@ static void lainjs_on_timeout(lainjs_timer_t *timer) {
 
   lainjs_on_next_tick(ctx);
 
-  if (!timer->repeat)
-    lainjs_destroy_timer_t(timer);
+  // TODO: check whether remove timer or not.
 }
 
 static void lainjs_timer_timeout(uv_timer_t* handle) {
