@@ -65,8 +65,7 @@ int lainjs_process_binding_binding(duk_context *ctx) {
     if (module->register_func)
       module->register_func(ctx);
 
-  duk_push_global_stash(ctx);
-  duk_get_prop_string(ctx, -1, module->module);
+  JS_GET_PROP_ON_STASH(module->module)
 
   return 1;
 }
@@ -178,6 +177,8 @@ void lainjs_init_process(duk_context *ctx) {
   duk_put_prop_string(ctx, -2, "fs");
   duk_push_int(ctx, MODULE_CONSTANTS);
   duk_put_prop_string(ctx, -2, "constants");
+  duk_push_int(ctx, MODULE_TCP);
+  duk_put_prop_string(ctx, -2, "tcp");
 
   duk_pop_3(ctx);
 }

@@ -19,35 +19,8 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-
-#include "lainjs_module.h"
-#include "lainjs_module_buffer.h"
-#include "lainjs_module_console.h"
-#include "lainjs_module_constants.h"
-#include "lainjs_module_fs.h"
-#include "lainjs_module_process.h"
-#include "lainjs_module_tcp.h"
-#include "lainjs_module_timer.h"
-
-static module _modules[MODULE_COUNT];
-
-#define INIT_MODULE(upper, lower, string) \
-  _modules[MODULE_ ## upper].kind = MODULE_ ## upper; \
-  _modules[MODULE_ ## upper].register_func = lainjs_init_ ## lower; \
-  strcpy(_modules[MODULE_ ## upper].module, string);
-
-void lainjs_init_modules(duk_context *ctx) {
-  INIT_MODULE(CONSOLE, console, "console")
-  INIT_MODULE(PROCESS, process, "process")
-  INIT_MODULE(TIMER, timer, "timer")
-  INIT_MODULE(BUFFER, buffer, "buffer")
-  INIT_MODULE(FS, fs, "fs")
-  INIT_MODULE(CONSTANTS, constants, "constants")
-  INIT_MODULE(TCP, tcp, "tcp")
-}
-
-module* lainjs_get_builtin_module(lainjs_modules kind) {
-  assert(kind < MODULE_COUNT);
-  return &_modules[kind];
-}
+#ifndef LAINJS_MODULE_TCP_H
+#define LAINJS_MODULE_TCP_H
+#include "lainjs_binding.h"
+void lainjs_init_tcp(duk_context *ctx);
+#endif

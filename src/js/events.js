@@ -47,7 +47,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
 };
 
 //TODO: https://github.com/nodejs/node/blob/master/lib/events.js#L170
-EventEmitter.prototype.emit = function(type) {
+EventEmitter.prototype.emit = function(type, arg1, arg2) {
   if (!this._events) {
     this._events = {};
   }
@@ -58,7 +58,7 @@ EventEmitter.prototype.emit = function(type) {
   } else if (util.isObject(handler)) {
     listeners = handler;
     for (i = 0; i < listeners.length; ++i) {
-      listeners[i].call(this);
+      listeners[i].call(this, arg1, arg2);
     }
   }
 

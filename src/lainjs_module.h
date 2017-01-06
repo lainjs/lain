@@ -30,6 +30,7 @@ typedef enum {
   MODULE_CONSTANTS,
   MODULE_FS,
   MODULE_TIMER,
+  MODULE_TCP,
   MODULE_COUNT,
 } lainjs_modules;
 

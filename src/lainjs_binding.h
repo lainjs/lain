@@ -74,9 +74,16 @@
   duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
+// FIXME : No general define
 #define JS_BINDING_FUNC_ON_OBJECT(func, name) \
   duk_push_c_function(ctx, func, DUK_VARARGS); \
   duk_put_prop_string(ctx, -2, name);
+
+#define JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module, name) \
+  JS_GET_PROP_ON_STASH(module) \
+  JS_CREATE_OBJECT \
+  duk_put_prop_string(ctx, -2, name); \
+  duk_pop(ctx);
 
 #define JS_BIDNING_NATIVE_ON_OBJECT(native) \
   duk_push_pointer(ctx, native); \
@@ -112,7 +119,7 @@
 
 #define JS_GET_NATIVE_OBJECT_ON_INDEX(idx, var) \
   duk_get_prop_string(ctx, idx, "##native##"); \
-  var = (char*)duk_get_pointer(ctx, -1); \
+  var = duk_get_pointer(ctx, -1); \
   duk_pop(ctx);
 
 #define JS_GET_INT(idx, var) \
