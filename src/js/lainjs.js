@@ -58,6 +58,7 @@
           var callback = callbacks[i];
           callback();
         }
+        return nextTickQueue.length;
       }
 
       function nextTick(callback) {

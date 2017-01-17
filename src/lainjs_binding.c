@@ -28,7 +28,7 @@ void lainjs_add_argument(lainjs_func_t *this_, int idx) {
   this_->args.args[this_->args.size++] = idx; 
 }
 
-void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this) {
+int lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this) {
   duk_dup(ctx, this_->function);
   duk_remove(ctx, this_->function - 1);
 
@@ -47,7 +47,13 @@ void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_th
 
   lainjs_eval_exception(ctx, rc);
 
-  duk_pop(ctx); 
+  int ret = 0;
+
+  if (duk_is_number(ctx, -1))
+    ret = duk_get_int(ctx, -1);
+  duk_pop(ctx);
+
+  return ret;
 }
 
 void lainjs_eval_exception(duk_context *ctx, duk_int_t rc) {

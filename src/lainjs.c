@@ -87,8 +87,8 @@ int lainjs_start(char** argv) {
   int more;
   do {
     more = uv_run(env->loop, UV_RUN_ONCE);
+    more |= lainjs_on_next_tick(ctx);
     if (!more) {
-      lainjs_on_next_tick(ctx);
       more = uv_loop_alive(env->loop);
     }
   } while (more);

@@ -23,6 +23,6 @@
 #define LAINJS_MODULE_PROCESS_H
 #include "lainjs_binding.h"
 
-void lainjs_on_next_tick(duk_context *ctx);
+int lainjs_on_next_tick(duk_context *ctx);
 void lainjs_init_process(duk_context *ctx);
 #endif

@@ -18,13 +18,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-var MODULE_PROCESS = 0;
-var MODULE_CONSOLE = 1;
-this.global = this;
-var global = this.global;
-global.console = process.binding(MODULE_CONSOLE);
-
 console.log('LainJS Process NextTick Test ...');
 
 var index = 0;
@@ -36,4 +29,14 @@ process.nextTick(function() {
 process.nextTick(function() {
   index++;
   console.log('#'+index+' Process Tick ...');
+});
+
+process.nextTick(function() {
+  console.log('#Inner 1 Process Tick ...');
+  process.nextTick(function() {
+    console.log('#Inner 2 Process Tick ...');
+    process.nextTick(function() {
+      console.log('#Inner 3 Process Tick ...');
+    });
+  });
 });

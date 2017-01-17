@@ -232,7 +232,7 @@ void lainjs_free_func_t(lainjs_func_t *this_);
 void lainjs_set_function(lainjs_func_t *this_, int idx);
 void lainjs_add_argument(lainjs_func_t *this_, int idx);
 
-void lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this);
+int lainjs_call_mathod(duk_context *ctx, lainjs_func_t *this_, LAIN_BOOL has_this);
 void lainjs_eval_exception(duk_context *ctx, duk_int_t rc);
 
 char* lainjs_gen_key_on_stach(duk_context *ctx);

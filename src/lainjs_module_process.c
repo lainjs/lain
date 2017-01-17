@@ -94,7 +94,8 @@ int lainjs_process_binding_read_source(duk_context *ctx) {
   return 1;
 }
 
-void lainjs_on_next_tick(duk_context *ctx) {
+int lainjs_on_next_tick(duk_context *ctx) {
+  int ret = 0;
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
     JS_GET_PROP_ON_STASH(module->module)
@@ -102,7 +103,7 @@ void lainjs_on_next_tick(duk_context *ctx) {
 
     lainjs_func_t *func = lainjs_create_func_t();
     lainjs_set_function(func, -1);
-    lainjs_call_mathod(ctx, func, LAIN_FALSE);
+    ret = lainjs_call_mathod(ctx, func, LAIN_FALSE);
     lainjs_free_func_t(func);
   }
 
@@ -114,6 +115,8 @@ void lainjs_on_next_tick(duk_context *ctx) {
       JS_DELETE_OBJECT_ON_STASH(module->module)
     }
   }
+
+  return ret;
 }
 
 void lainjs_set_native_codes(duk_context *ctx) {
