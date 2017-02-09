@@ -126,7 +126,7 @@ int lainjs_construct_timer(duk_context *ctx) {
   if (!timer)
     return 0;
 
-  JS_CREATE_OBJECT
+  lainjs_binding_create_object(ctx);
   JS_BINDING_FUNC_ON_OBJECT(lainjs_start_timer, "start")
   JS_BINDING_FUNC_ON_OBJECT(lainjs_stop_timer, "stop")
   JS_BIDNING_NATIVE_ON_OBJECT(timer)

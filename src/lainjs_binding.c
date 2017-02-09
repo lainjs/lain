@@ -1,5 +1,9 @@
 #include "lainjs_binding.h"
 
+void lainjs_binding_create_object(duk_context *ctx) {
+  duk_push_object(ctx);
+}
+
 lainjs_func_t* lainjs_create_func_t() {
   lainjs_func_t *func = (lainjs_func_t*)malloc(sizeof(lainjs_func_t));
   func->args.size = 0;

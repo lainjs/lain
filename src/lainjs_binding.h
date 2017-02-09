@@ -26,9 +26,8 @@
 
 #include "lainjs_util.h"
 
-///// 'CREATE' TYPE
-#define JS_CREATE_OBJECT \
-  duk_push_object(ctx);
+// 'create' type function
+void lainjs_binding_create_object(duk_context *ctx);
 
 ///// 'BINDING' TYPE
 #define JS_BINDING_OBJECT_ON_STASH(obj) \
@@ -81,7 +80,7 @@
 
 #define JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module, name) \
   JS_GET_PROP_ON_STASH(module) \
-  JS_CREATE_OBJECT \
+  lainjs_binding_create_object(ctx); \
   duk_put_prop_string(ctx, -2, name); \
   duk_pop(ctx);
 
