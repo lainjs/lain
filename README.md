@@ -1,5 +1,4 @@
-Lain.js
-=======
+## ![alt tag](https://raw.githubusercontent.com/lainjs/lain/master/images/logo.jpg)
 
 ## How to Start
 ### How to Build
