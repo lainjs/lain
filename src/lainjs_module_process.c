@@ -138,7 +138,7 @@ void lainjs_set_native_codes(duk_context *ctx) {
 void lainjs_init_process(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_PROCESS);
 
-  JS_BINDING_OBJECT_ON_STASH(module->module)
+  lainjs_binding_object_on_stash(ctx, module->module);
 
   JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
                                         lainjs_process_binding_binding,

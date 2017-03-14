@@ -30,11 +30,7 @@
 void lainjs_binding_create_object(duk_context *ctx);
 
 ///// 'BINDING' TYPE
-#define JS_BINDING_OBJECT_ON_STASH(obj) \
-  duk_push_global_stash(ctx); \
-  duk_push_object(ctx); \
-  duk_put_prop_string(ctx, -2, obj); \
-  duk_pop(ctx);
+void lainjs_binding_object_on_stash(duk_context *ctx, char* obj);
 
 #define JS_BINDING_THIS_ON_STASH(obj) \
   duk_push_global_stash(ctx); \

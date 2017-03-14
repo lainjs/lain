@@ -43,7 +43,7 @@ int lainjs_console_binding_log(duk_context *ctx) {
 void lainjs_init_console(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_CONSOLE);
 
-  JS_BINDING_OBJECT_ON_STASH(module->module)
+  lainjs_binding_object_on_stash(ctx, module->module);
 
   JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
                                         lainjs_console_binding_log,

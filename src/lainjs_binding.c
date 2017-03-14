@@ -4,6 +4,16 @@ void lainjs_binding_create_object(duk_context *ctx) {
   duk_push_object(ctx);
 }
 
+// Binding type function.
+// Binding object on stash with name.
+void lainjs_binding_object_on_stash(duk_context *ctx, char* obj) {
+  duk_push_global_stash(ctx);
+  lainjs_binding_create_object(ctx);
+  duk_put_prop_string(ctx, -2, obj);
+  duk_pop(ctx);
+  // After all stack is '0'.
+}
+
 lainjs_func_t* lainjs_create_func_t() {
   lainjs_func_t *func = (lainjs_func_t*)malloc(sizeof(lainjs_func_t));
   func->args.size = 0;
