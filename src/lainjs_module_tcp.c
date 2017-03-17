@@ -111,7 +111,6 @@ static void OnConnection(uv_stream_t* handle, int status) {
         (uv_stream_t*)(&socket_tcp_req->req);
 
     int err = uv_accept(handle, client_handle);
-    uv_shutdown((uv_shutdown_t *)handle, client_handle, OnShutdown);
     if (err) {
       // FIXME : processing then failure.
       return;
