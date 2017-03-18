@@ -115,9 +115,9 @@ int lainjs_buffer_binding_setup_buffer_js(duk_context *ctx) {
 
   // object is prototype.
   JS_GET_PROP_ON_OBJECT(0, "prototype")
-  JS_BINDING_FUNC_ON_OBJECT(Write, "_write")
-  JS_BINDING_FUNC_ON_OBJECT(ToString, "_toString")
-  JS_BINDING_FUNC_ON_OBJECT(Copy, "copy")
+  lainjs_binding_func_on_top(ctx, Write, "_write");
+  lainjs_binding_func_on_top(ctx, ToString, "_toString");
+  lainjs_binding_func_on_top(ctx, Copy, "copy");
 
   return 0;
 }
@@ -131,7 +131,7 @@ int lainjs_buffer_binding_alloc(duk_context *ctx) {
   JS_GET_NUMBER(1, length)
   char* buffer = lainjs_alloc_char_buffer(length);
 
-  JS_BINDING_NATIVE_ON_OBJECT_WITH_NAME(0, buffer, "##native##")
+  lainjs_binding_native_on_index(ctx, 0, buffer, "##native##");
   JS_GET_PROP_ON_OBJECT(0, "##native##")
 
   return 1;
@@ -142,11 +142,11 @@ void lainjs_init_buffer(duk_context *ctx) {
 
   lainjs_binding_object_on_stash(ctx, module->module);
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_buffer_binding_alloc,
-                                        "alloc")
+                                        "alloc");
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_buffer_binding_setup_buffer_js,
-                                        "setupBufferJs")
+                                        "setupBufferJs");
 }

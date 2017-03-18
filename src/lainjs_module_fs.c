@@ -147,7 +147,7 @@ int lainjs_fs_binding_open(duk_context *ctx) {
   if (args_lens > 3 && JS_IS_FUNCTION(3)) {
     char* object_id = lainjs_gen_key_on_stach(ctx);
     // Binding function on stash.
-    JS_BINDING_INDEX_ON_STASH(3, object_id)
+    lainjs_binding_index_on_stash(ctx, 3, object_id);
     FS_ASYNC(env, open, object_id, path, flags, mode);
   } else {
     FS_SYNC(env, open, path, flags, mode);
@@ -208,7 +208,7 @@ int lainjs_fs_binding_read(duk_context *ctx) {
   if (args_lens > 5 && JS_IS_FUNCTION(5)) {
     char* object_id = lainjs_gen_key_on_stach(ctx);
     // Binding function on stash.
-    JS_BINDING_INDEX_ON_STASH(5, object_id)
+    lainjs_binding_index_on_stash(ctx, 5, object_id);
 
     FS_ASYNC(env, read, object_id, fd, &uvbuf, 1, position);
   } else {
@@ -223,11 +223,11 @@ void lainjs_init_fs(duk_context *ctx) {
 
   lainjs_binding_object_on_stash(ctx, module->module);
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_fs_binding_open,
-                                        "open")
+                                        "open");
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_fs_binding_read,
-                                        "read")
+                                        "read");
 }

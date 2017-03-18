@@ -140,22 +140,23 @@ void lainjs_init_process(duk_context *ctx) {
 
   lainjs_binding_object_on_stash(ctx, module->module);
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_process_binding_binding,
-                                        "binding")
+                                        "binding");
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_process_binding_compile,
-                                        "compile")
+                                        "compile");
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_process_binding_read_source,
-                                        "readSource")
+                                        "readSource");
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_process_binding_wrapping_as_function,
-                                        "wrappingAsFunction")
+                                        "wrappingAsFunction");
 
+  //FIXME: move binding codes to 'lainjs_binding'.
   duk_push_global_stash(ctx);
   duk_get_prop_string(ctx, -1, module->module);
   duk_push_global_object(ctx);

@@ -26,53 +26,28 @@
 
 #include "lainjs_util.h"
 
+typedef int (*JS_NATIVE_CALLBACK)(duk_context*);
+
 // 'create' type function
-void lainjs_binding_create_object(duk_context *ctx);
+void lainjs_binding_create_object(duk_context* ctx);
 
-///// 'BINDING' TYPE
-void lainjs_binding_object_on_stash(duk_context *ctx, char* obj);
+// 'binding' type function
+void lainjs_binding_object_on_stash(duk_context* ctx, char* name);
 
-#define JS_BINDING_THIS_ON_STASH(obj) \
-  duk_push_global_stash(ctx); \
-  JS_GET_THIS \
-  duk_put_prop_string(ctx, -2, obj); \
-  duk_pop(ctx);
+void lainjs_binding_this_on_stash(duk_context* ctx, char* name);
 
-#define JS_BINDING_INDEX_ON_STASH(idx, name) \
-  duk_push_global_stash(ctx); \
-  duk_dup(ctx, idx); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
+void lainjs_binding_index_on_stash(duk_context* ctx, int idx, char* name);
 
-#define JS_BINDING_FUNC_ON_STASH(func, name) \
-  duk_push_global_stash(ctx); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
+void lainjs_binding_func_on_stash(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
 
-#define JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(obj, func, name) \
-  duk_push_global_stash(ctx); \
-  duk_get_prop_string(ctx, -1, obj); \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop_2(ctx);
+void lainjs_binding_func_on_stashed_object(duk_context* ctx, char* obj,
+                                           JS_NATIVE_CALLBACK func, char* name);
 
-#define JS_BINDING_OBJECT_ON_THIS(idx, name) \
-  JS_GET_THIS \
-  duk_dup(ctx, idx); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
+void lainjs_binding_index_on_this(duk_context* ctx, int idx, char* name);
 
-#define JS_BINDING_NATIVE_ON_OBJECT_WITH_NAME(obj, native, name) \
-  duk_dup(ctx, obj); \
-  duk_push_pointer(ctx, native); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
+void lainjs_binding_native_on_index(duk_context* ctx, int idx, void* native, char* name);
 
-// FIXME : No general define
-#define JS_BINDING_FUNC_ON_OBJECT(func, name) \
-  duk_push_c_function(ctx, func, DUK_VARARGS); \
-  duk_put_prop_string(ctx, -2, name);
+void lainjs_binding_func_on_top(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
 
 #define JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module, name) \
   JS_GET_PROP_ON_STASH(module) \

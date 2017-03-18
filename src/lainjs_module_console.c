@@ -45,7 +45,7 @@ void lainjs_init_console(duk_context *ctx) {
 
   lainjs_binding_object_on_stash(ctx, module->module);
 
-  JS_BINDING_FUNC_WITH_STASH_AND_OBJECT(module->module,
+  lainjs_binding_func_on_stashed_object(ctx, module->module,
                                         lainjs_console_binding_log,
-                                        "log")
+                                        "log");
 }

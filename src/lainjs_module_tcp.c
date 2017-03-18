@@ -47,9 +47,10 @@ lainjs_tcp_req_t* lainjs_create_tcp_req(duk_context *ctx) {
   uv_tcp_init(lainjs_get_envronment(ctx)->loop, &req->req);
   req->ctx = ctx;
   req->req.data = req;
+
   // Binding this.
   req->target = lainjs_gen_key_on_stach(ctx);
-  JS_BINDING_THIS_ON_STASH(req->target)
+  lainjs_binding_this_on_stash(ctx, req->target);
 
   return req;
 }
@@ -191,7 +192,7 @@ int Connect(duk_context *ctx) {
 
   if (!result) {
     char* object_id = lainjs_gen_key_on_stach(ctx);
-    JS_BINDING_INDEX_ON_STASH(2, object_id)
+    lainjs_binding_index_on_stash(ctx, 2, object_id);
     JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_tcp_req_t* tcp_req)
     lainjs_tcp_connect_t *connect = lainjs_create_tcp_connect(ctx, object_id);
     connect->connect.data = connect;
@@ -267,7 +268,8 @@ int lainjs_construct_tcp(duk_context *ctx) {
 
 void lainjs_init_tcp(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TCP);
-  JS_BINDING_FUNC_ON_STASH(lainjs_construct_tcp, module->module)
+  lainjs_binding_func_on_stash(ctx, lainjs_construct_tcp, module->module);
+
   // get prototype on 'function'
   // and binding 'bind', 'close', 'connect' and 'listen'.
   JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module->module, "prototype")
@@ -275,8 +277,8 @@ void lainjs_init_tcp(duk_context *ctx) {
   JS_GET_PROP_ON_STASH(module->module)
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "prototype")
 
-  JS_BINDING_FUNC_ON_OBJECT(Bind, "bind")
-  JS_BINDING_FUNC_ON_OBJECT(Close, "close")
-  JS_BINDING_FUNC_ON_OBJECT(Connect, "connect")
-  JS_BINDING_FUNC_ON_OBJECT(Listen, "listen")
+  lainjs_binding_func_on_top(ctx, Bind, "bind");
+  lainjs_binding_func_on_top(ctx, Close, "close");
+  lainjs_binding_func_on_top(ctx, Connect, "connect");
+  lainjs_binding_func_on_top(ctx, Listen, "listen");
 }

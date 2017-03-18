@@ -6,12 +6,68 @@ void lainjs_binding_create_object(duk_context *ctx) {
 
 // Binding type function.
 // Binding object on stash with name.
-void lainjs_binding_object_on_stash(duk_context *ctx, char* obj) {
+void lainjs_binding_object_on_stash(duk_context *ctx, char* name) {
   duk_push_global_stash(ctx);
   lainjs_binding_create_object(ctx);
-  duk_put_prop_string(ctx, -2, obj);
+  duk_put_prop_string(ctx, -2, name);
   duk_pop(ctx);
-  // After all stack is '0'.
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_this_on_stash(duk_context *ctx, char* name) {
+  duk_push_global_stash(ctx);
+  duk_push_this(ctx);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_index_on_stash(duk_context *ctx, int idx, char* name) {
+  duk_push_global_stash(ctx);
+  duk_dup(ctx, idx);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_func_on_stash(duk_context *ctx, JS_NATIVE_CALLBACK func, char* name) {
+  duk_push_global_stash(ctx);
+  duk_push_c_function(ctx, func, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_func_on_stashed_object(duk_context *ctx, char* obj,
+                                           JS_NATIVE_CALLBACK func, char* name) {
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, obj);
+  duk_push_c_function(ctx, func, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop_2(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_index_on_this(duk_context *ctx, int idx, char* name) {
+  duk_push_this(ctx);
+  duk_dup(ctx, idx);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_native_on_index(duk_context *ctx, int idx, void* native, char* name) {
+  duk_dup(ctx, idx);
+  duk_push_pointer(ctx, native);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
+void lainjs_binding_func_on_top(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name) {
+  // TODO: Add assert to check whether there is object or not.
+  duk_push_c_function(ctx, func, DUK_VARARGS);
+  duk_put_prop_string(ctx, -2, name);
 }
 
 lainjs_func_t* lainjs_create_func_t() {

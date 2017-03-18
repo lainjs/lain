@@ -89,10 +89,10 @@ int lainjs_start_timer(duk_context *ctx) {
   JS_GET_NUMBER(1, repeat)
 
   JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_timer_t *timer)
-  JS_BINDING_OBJECT_ON_THIS(2, "##callback##");
+  lainjs_binding_index_on_this(ctx, 2, "##callback##");
  
   timer->obj = lainjs_gen_key_on_stach(ctx);
-  JS_BINDING_THIS_ON_STASH(timer->obj)
+  lainjs_binding_this_on_stash(ctx, timer->obj);
 
   timer->timeout = timeout;
   timer->repeat = repeat;
@@ -127,8 +127,9 @@ int lainjs_construct_timer(duk_context *ctx) {
     return 0;
 
   lainjs_binding_create_object(ctx);
-  JS_BINDING_FUNC_ON_OBJECT(lainjs_start_timer, "start")
-  JS_BINDING_FUNC_ON_OBJECT(lainjs_stop_timer, "stop")
+  lainjs_binding_func_on_top(ctx, lainjs_start_timer, "start");
+  lainjs_binding_func_on_top(ctx, lainjs_stop_timer, "stop");
+
   JS_BIDNING_NATIVE_ON_OBJECT(timer)
 
   // uv
@@ -142,5 +143,5 @@ int lainjs_construct_timer(duk_context *ctx) {
 void lainjs_init_timer(duk_context *ctx) {
   module* module = lainjs_get_builtin_module(MODULE_TIMER);
 
-  JS_BINDING_FUNC_ON_STASH(lainjs_construct_timer, module->module)
+  lainjs_binding_func_on_stash(ctx, lainjs_construct_timer, module->module);
 }
