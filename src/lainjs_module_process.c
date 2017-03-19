@@ -65,7 +65,7 @@ int lainjs_process_binding_binding(duk_context *ctx) {
     if (module->register_func)
       module->register_func(ctx);
 
-  JS_GET_PROP_ON_STASH(module->module)
+  lainjs_binding_get_object_on_stash(ctx, module->module);
 
   return 1;
 }
@@ -98,7 +98,7 @@ int lainjs_on_next_tick(duk_context *ctx) {
   int ret = 0;
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
-    JS_GET_PROP_ON_STASH(module->module)
+    lainjs_binding_get_object_on_stash(ctx, module->module);
     JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "onNextTick")
 
     lainjs_func_t *func = lainjs_create_func_t();

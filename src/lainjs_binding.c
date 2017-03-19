@@ -14,6 +14,14 @@ void lainjs_binding_object_on_stash(duk_context *ctx, char* name) {
   // After all, stack is '0'.
 }
 
+void lainjs_binding_object_on_module_object(duk_context* ctx, char* module, char* name) {
+  lainjs_binding_get_object_on_stash(ctx, module);
+  lainjs_binding_create_object(ctx);
+  duk_put_prop_string(ctx, -2, name);
+  duk_pop(ctx);
+  // After all, stack is '0'.
+}
+
 void lainjs_binding_this_on_stash(duk_context *ctx, char* name) {
   duk_push_global_stash(ctx);
   duk_push_this(ctx);
@@ -68,6 +76,18 @@ void lainjs_binding_func_on_top(duk_context* ctx, JS_NATIVE_CALLBACK func, char*
   // TODO: Add assert to check whether there is object or not.
   duk_push_c_function(ctx, func, DUK_VARARGS);
   duk_put_prop_string(ctx, -2, name);
+}
+
+void lainjs_binding_native_on_top(duk_context* ctx, void* native) {
+  duk_push_pointer(ctx, native);
+  duk_put_prop_string(ctx, -2, "##native##");
+}
+
+void lainjs_binding_get_object_on_stash(duk_context* ctx, char* name) {
+  duk_push_global_stash(ctx);
+  duk_get_prop_string(ctx, -1, name);
+  duk_remove(ctx, -2);
+  // After all, remain the object called 'name'.
 }
 
 lainjs_func_t* lainjs_create_func_t() {

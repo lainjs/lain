@@ -72,7 +72,7 @@ static void After(uv_fs_t* req) {
     JS_PUSH_NULL
   }
 
-  JS_GET_PROP_ON_STASH(req_wrap->callback)
+  lainjs_binding_get_object_on_stash(ctx, req_wrap->callback);
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);

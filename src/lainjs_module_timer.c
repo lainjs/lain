@@ -55,9 +55,9 @@ void lainjs_destroy_timer_t(lainjs_timer_t *timer) {
 
 static void lainjs_on_timeout(lainjs_timer_t *timer) {
   duk_context *ctx = timer->ctx;
-  JS_GET_PROP_ON_STASH(timer->obj)
+  lainjs_binding_get_object_on_stash(ctx, timer->obj);
 
-  JS_GET_PROP_ON_STASH(timer->obj)
+  lainjs_binding_get_object_on_stash(ctx, timer->obj);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "##callback##")
 
   lainjs_func_t *func = lainjs_create_func_t();
@@ -130,7 +130,7 @@ int lainjs_construct_timer(duk_context *ctx) {
   lainjs_binding_func_on_top(ctx, lainjs_start_timer, "start");
   lainjs_binding_func_on_top(ctx, lainjs_stop_timer, "stop");
 
-  JS_BIDNING_NATIVE_ON_OBJECT(timer)
+  lainjs_binding_native_on_top(ctx, timer);
 
   // uv
   uv_timer_init(lainjs_get_envronment(ctx)->loop, &(timer->handle));

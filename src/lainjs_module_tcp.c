@@ -79,7 +79,7 @@ void OnShutdown(uv_shutdown_t* req, int status) {
       (lainjs_tcp_req_t*)(req->handle->data);
   duk_context *ctx = tcp_req->ctx;
 
-  JS_GET_PROP_ON_STASH(tcp_req->target)
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
   JS_GET_PROP_ON_OBJECT(-1, "_onclose")
 
@@ -98,7 +98,7 @@ static void OnConnection(uv_stream_t* handle, int status) {
   duk_context *ctx = tcp_req->ctx;
 
   if(!status) {
-    JS_GET_PROP_ON_STASH(tcp_req->target)
+    lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
     // Get handle for server.
     // FIXME
     JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
@@ -126,10 +126,10 @@ static void OnConnection(uv_stream_t* handle, int status) {
   }
 
   // this
-  JS_GET_PROP_ON_STASH(tcp_req->target)
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
 
-  JS_GET_PROP_ON_STASH(tcp_req->target)
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_onconnection")
 
@@ -168,7 +168,7 @@ static void AfterConnect(uv_connect_t* req, int status) {
   duk_context *ctx = connect->ctx;
 
   JS_PUSH_INT(status)
-  JS_GET_PROP_ON_STASH(connect->callback)
+  lainjs_binding_get_object_on_stash(ctx, connect->callback);
 
   // Need add this.
   lainjs_func_t *func = lainjs_create_func_t();
@@ -211,7 +211,7 @@ static void AfterClose(uv_handle_t* handle) {
   lainjs_tcp_req_t* tcp_req =
       (lainjs_tcp_req_t*)(handle->data);
   duk_context *ctx = tcp_req->ctx;
-  JS_GET_PROP_ON_STASH(tcp_req->target)
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
   JS_GET_PROP_ON_OBJECT(-1, "_onclose")
 
@@ -261,7 +261,7 @@ int lainjs_construct_tcp(duk_context *ctx) {
 
   lainjs_tcp_req_t* tcp_req = lainjs_create_tcp_req(ctx);
   JS_GET_THIS
-  JS_BIDNING_NATIVE_ON_OBJECT(tcp_req)
+  lainjs_binding_native_on_top(ctx, tcp_req);
 
   return 1;
 }
@@ -272,9 +272,9 @@ void lainjs_init_tcp(duk_context *ctx) {
 
   // get prototype on 'function'
   // and binding 'bind', 'close', 'connect' and 'listen'.
-  JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module->module, "prototype")
+  lainjs_binding_object_on_module_object(ctx, module->module, "prototype");
 
-  JS_GET_PROP_ON_STASH(module->module)
+  lainjs_binding_get_object_on_stash(ctx, module->module);
   JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "prototype")
 
   lainjs_binding_func_on_top(ctx, Bind, "bind");

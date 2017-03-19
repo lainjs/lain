@@ -28,48 +28,13 @@
 
 typedef int (*JS_NATIVE_CALLBACK)(duk_context*);
 
-// 'create' type function
-void lainjs_binding_create_object(duk_context* ctx);
-
-// 'binding' type function
-void lainjs_binding_object_on_stash(duk_context* ctx, char* name);
-
-void lainjs_binding_this_on_stash(duk_context* ctx, char* name);
-
-void lainjs_binding_index_on_stash(duk_context* ctx, int idx, char* name);
-
-void lainjs_binding_func_on_stash(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
-
-void lainjs_binding_func_on_stashed_object(duk_context* ctx, char* obj,
-                                           JS_NATIVE_CALLBACK func, char* name);
-
-void lainjs_binding_index_on_this(duk_context* ctx, int idx, char* name);
-
-void lainjs_binding_native_on_index(duk_context* ctx, int idx, void* native, char* name);
-
-void lainjs_binding_func_on_top(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
-
-#define JS_BINDING_NEW_OBJECT_ON_MODULE_OBJECT(module, name) \
-  JS_GET_PROP_ON_STASH(module) \
-  lainjs_binding_create_object(ctx); \
-  duk_put_prop_string(ctx, -2, name); \
-  duk_pop(ctx);
-
-#define JS_BIDNING_NATIVE_ON_OBJECT(native) \
-  duk_push_pointer(ctx, native); \
-  duk_put_prop_string(ctx, -2, "##native##");
-
-///// 'GET' TYPE
 #define JS_GET_GLOBAL_OBJECT \
   duk_push_global_object(ctx);
 
 #define JS_GET_THIS \
   duk_push_this(ctx);
 
-#define JS_GET_PROP_ON_STASH(name) \
-  duk_push_global_stash(ctx); \
-  duk_get_prop_string(ctx, -1, name); \
-  duk_remove(ctx, -2); \
+void lainjs_binding_get_object_on_stash(duk_context* ctx, char* name);
 
 #define JS_GET_PROP_ON_OBJECT(idx, name) \
   duk_dup(ctx, idx); \
@@ -196,6 +161,31 @@ typedef struct {
   int function;
   lainjs_args_t args;
 } lainjs_func_t;
+
+// 'create' type function
+void lainjs_binding_create_object(duk_context* ctx);
+
+// 'binding' type function
+void lainjs_binding_object_on_stash(duk_context* ctx, char* name);
+
+void lainjs_binding_object_on_module_object(duk_context* ctx, char* module, char* name);
+
+void lainjs_binding_this_on_stash(duk_context* ctx, char* name);
+
+void lainjs_binding_index_on_stash(duk_context* ctx, int idx, char* name);
+
+void lainjs_binding_func_on_stash(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
+
+void lainjs_binding_func_on_stashed_object(duk_context* ctx, char* obj,
+                                           JS_NATIVE_CALLBACK func, char* name);
+
+void lainjs_binding_index_on_this(duk_context* ctx, int idx, char* name);
+
+void lainjs_binding_native_on_index(duk_context* ctx, int idx, void* native, char* name);
+
+void lainjs_binding_func_on_top(duk_context* ctx, JS_NATIVE_CALLBACK func, char* name);
+
+void lainjs_binding_native_on_top(duk_context* ctx, void* native);
 
 lainjs_func_t* lainjs_create_func_t();
 void lainjs_free_func_t(lainjs_func_t *this_);
