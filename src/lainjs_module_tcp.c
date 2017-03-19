@@ -80,8 +80,9 @@ void OnShutdown(uv_shutdown_t* req, int status) {
   duk_context *ctx = tcp_req->ctx;
 
   lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
-  JS_GET_PROP_ON_OBJECT(-1, "_onclose")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+  lainjs_binding_get_object_on_index(ctx, -1, "_onclose");
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);
@@ -101,8 +102,9 @@ static void OnConnection(uv_stream_t* handle, int status) {
     lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
     // Get handle for server.
     // FIXME
-    JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
-    JS_GET_PROP_ON_OBJECT(-1, "_createTCP")
+    lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                        -1, "_socket");
+    lainjs_binding_get_object_on_index(ctx, -1, "_createTCP");
     duk_dup(ctx, -2);
     duk_remove(ctx, -3);
     duk_new(ctx, 1);
@@ -127,11 +129,14 @@ static void OnConnection(uv_stream_t* handle, int status) {
 
   // this
   lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
 
   lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_onconnection")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_onconnection");
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);
@@ -212,8 +217,9 @@ static void AfterClose(uv_handle_t* handle) {
       (lainjs_tcp_req_t*)(handle->data);
   duk_context *ctx = tcp_req->ctx;
   lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "_socket")
-  JS_GET_PROP_ON_OBJECT(-1, "_onclose")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+  lainjs_binding_get_object_on_index(ctx, -1, "_onclose");
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);
@@ -275,7 +281,8 @@ void lainjs_init_tcp(duk_context *ctx) {
   lainjs_binding_object_on_module_object(ctx, module->module, "prototype");
 
   lainjs_binding_get_object_on_stash(ctx, module->module);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "prototype")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "prototype");
 
   lainjs_binding_func_on_top(ctx, Bind, "bind");
   lainjs_binding_func_on_top(ctx, Close, "close");

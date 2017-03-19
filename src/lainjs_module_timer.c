@@ -58,7 +58,8 @@ static void lainjs_on_timeout(lainjs_timer_t *timer) {
   lainjs_binding_get_object_on_stash(ctx, timer->obj);
 
   lainjs_binding_get_object_on_stash(ctx, timer->obj);
-  JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "##callback##")
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "##callback##");
 
   lainjs_func_t *func = lainjs_create_func_t();
   lainjs_set_function(func, -1);

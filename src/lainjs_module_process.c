@@ -99,7 +99,7 @@ int lainjs_on_next_tick(duk_context *ctx) {
   {
     module* module = lainjs_get_builtin_module(MODULE_PROCESS);
     lainjs_binding_get_object_on_stash(ctx, module->module);
-    JS_GET_PROP_ON_IDEX_AND_REMOVE(-1, "onNextTick")
+    lainjs_binding_get_object_on_index_and_remove_index(ctx, -1, "onNextTick");
 
     lainjs_func_t *func = lainjs_create_func_t();
     lainjs_set_function(func, -1);

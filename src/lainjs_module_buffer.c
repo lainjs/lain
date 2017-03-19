@@ -41,7 +41,7 @@ int Write(duk_context *ctx) {
   JS_GET_NATIVE_OBJECT_ON_THIS(char* buffer)
   assert(buffer != NULL);
 
-  JS_GET_INT_PROP_ON_THIS(buffer_length, "length")
+  JS_GET_INT_ON_OBJECT_OF_THIS(buffer_length, "length")
   assert(buffer_length >= offset + length);
 
   int i;
@@ -80,15 +80,15 @@ int Copy(duk_context *ctx) {
   int source_end = source_length;
 
   if (args_lens >= 2) {
-    JS_GET_INT_WITHOUT_TYPE(1, target_start)
+    JS_GET_INT_WITHOUT_TYPE_DEFINE(1, target_start)
   }
 
   if (args_lens >= 3) {
-    JS_GET_INT_WITHOUT_TYPE(2, source_start)
+    JS_GET_INT_WITHOUT_TYPE_DEFINE(2, source_start)
   }
 
   if (args_lens >= 4) {
-    JS_GET_INT_WITHOUT_TYPE(3, source_end)
+    JS_GET_INT_WITHOUT_TYPE_DEFINE(3, source_end)
     if (source_end > source_length) {
       source_end = source_length;
     }
@@ -114,7 +114,7 @@ int lainjs_buffer_binding_setup_buffer_js(duk_context *ctx) {
   assert(duk_is_function(ctx, 0));
 
   // object is prototype.
-  JS_GET_PROP_ON_OBJECT(0, "prototype")
+  lainjs_binding_get_object_on_index(ctx, 0, "prototype");
   lainjs_binding_func_on_top(ctx, Write, "_write");
   lainjs_binding_func_on_top(ctx, ToString, "_toString");
   lainjs_binding_func_on_top(ctx, Copy, "copy");
@@ -132,7 +132,7 @@ int lainjs_buffer_binding_alloc(duk_context *ctx) {
   char* buffer = lainjs_alloc_char_buffer(length);
 
   lainjs_binding_native_on_index(ctx, 0, buffer, "##native##");
-  JS_GET_PROP_ON_OBJECT(0, "##native##")
+  lainjs_binding_get_object_on_index(ctx, 0, "##native##");
 
   return 1;
 }

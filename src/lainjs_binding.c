@@ -90,6 +90,23 @@ void lainjs_binding_get_object_on_stash(duk_context* ctx, char* name) {
   // After all, remain the object called 'name'.
 }
 
+void lainjs_binding_get_object_on_index(duk_context* ctx, int index, char* name) {
+  duk_dup(ctx, index);
+  duk_get_prop_string(ctx, -1, name);
+  duk_remove(ctx, -2);
+  // After all, remain the object called 'name'.
+}
+
+void lainjs_binding_get_object_on_index_and_remove_index(duk_context* ctx,
+                                                         int index,
+                                                         char* name) {
+  lainjs_binding_get_object_on_index(ctx, index, name);
+
+  if (index < 0)
+    index -= 1;
+  duk_remove(ctx, index);
+}
+
 lainjs_func_t* lainjs_create_func_t() {
   lainjs_func_t *func = (lainjs_func_t*)malloc(sizeof(lainjs_func_t));
   func->args.size = 0;
