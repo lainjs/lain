@@ -110,6 +110,7 @@ static void OnConnection(uv_stream_t* handle, int status) {
     duk_new(ctx, 1);
 
     JS_GET_NATIVE_OBJECT_ON_INDEX(-1, lainjs_tcp_req_t* socket_tcp_req)
+    // We are in charge of server sockets in vector or else.
     uv_stream_t* client_handle =
         (uv_stream_t*)(&socket_tcp_req->req);
 
@@ -147,6 +148,8 @@ static void OnConnection(uv_stream_t* handle, int status) {
 
   lainjs_call_mathod(ctx, func, LAIN_TRUE);
   lainjs_free_func_t(func);
+
+  // Start 'Read' data ...
 }
 
 // server
@@ -161,6 +164,11 @@ int Listen(duk_context *ctx) {
                       backlog,
                       OnConnection);
   JS_PUSH_INT(err)
+  return 1;
+}
+
+int ReadStart(duk_context *ctx) {
+  // TODO: start reading data.
   return 1;
 }
 
@@ -288,4 +296,5 @@ void lainjs_init_tcp(duk_context *ctx) {
   lainjs_binding_func_on_top(ctx, Close, "close");
   lainjs_binding_func_on_top(ctx, Connect, "connect");
   lainjs_binding_func_on_top(ctx, Listen, "listen");
+  lainjs_binding_func_on_top(ctx, ReadStart, "readStart");
 }

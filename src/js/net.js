@@ -44,6 +44,13 @@ Socket.prototype.destroy = function() {
   self._handle.close();
 };
 
+Socket.prototype._onconnect = function() {
+  // TODO: Implement stendby reading and writing data.
+  // TODO: We should need data structure to implement
+  // writing data.
+  this._handle.readStart();
+};
+
 Socket.prototype._onclose = function() {
   this.emit('close');
 };
@@ -135,5 +142,7 @@ Server.prototype._onconnection = function(status, clientHandle) {
   });
 
   socket.server = this;
+  socket._onconnect();
+
   this.emit('connection', socket);
 };
