@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 by Lain.js authors
+/* Copyright (c) 2017 by Lain.js authors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,50 +19,12 @@
  * THE SOFTWARE.
  */
 
-function isNull(arg) {
-  return arg === null;
-};
-module.exports.isNull = isNull;
+var eventEmitter = require('events');
+var util = require('util');
 
-function isUndefined(arg) {
-  return arg === undefined;
-};
-module.exports.isUndefined = isUndefined;
-
-function isNullOrUndefined(arg) {
-  return isNull(arg) || isUndefined(arg);
-};
-module.exports.isNullOrUndefined = isNullOrUndefined;
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-};
-module.exports.isNumber = isNumber;
-
-function isString(arg) {
-  return typeof arg === 'string';
-};
-module.exports.isString = isString;
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg != null;
-};
-module.exports.isObject = isObject;
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-};
-module.exports.isFunction = isFunction;
-
-function isBuffer(arg) {
-  return arg instanceof Buffer;
-};
-module.exports.isBuffer = isBuffer;
-
-module.exports.isArray = Array.isArray;
-
-function inherits(constructor, superConstructor) {
-  constructor.prototype = new superConstructor();
+function Stream() {
+  eventEmitter.call(this);
 };
 
-module.exports.inherits = inherits;
+util.inherits(Stream, eventEmitter);
+exports.Stream = Stream;
