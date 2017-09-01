@@ -100,6 +100,8 @@
     this.exports = {};
   }
 
+  Native.cache = {};
+
   Native.prototype.compile = function() {
     var source = process.native_sources[this.id];
     var fn = process.wrappingAsFunction(source);
@@ -111,7 +113,12 @@
       return Native;
     }
 
+    if (Native.cache[id]) {
+      return Native.cache[id].exports;
+    }
+
     var nativeMod = new Native(id);
+    Native.cache[id] = nativeMod;
     nativeMod.compile();
     return nativeMod.exports;
   };

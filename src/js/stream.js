@@ -28,3 +28,8 @@ function Stream() {
 
 util.inherits(Stream, eventEmitter);
 exports.Stream = Stream;
+
+exports.ReadableStream = require('stream_readable');
+exports.WritableStream = require('stream_writable');
+exports.Duplex = require('stream_duplex');
+
