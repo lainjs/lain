@@ -30,7 +30,9 @@ static void print(duk_context *ctx, FILE* out_f) {
   JS_GET_FUNCTION_ARGS_LENGS(args_lens)
   register int index;
   for (index = 0; index < args_lens; index++) {
-    fprintf(out_f, "%s ", duk_to_string(ctx, index));
+    duk_trim(ctx, index);
+    const char* str = duk_to_string(ctx, index);
+    fprintf(out_f, "%s", str);
   }
   fprintf(out_f, "\n");
 }

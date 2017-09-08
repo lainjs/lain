@@ -25,9 +25,12 @@ function WritableState(options) {
 }
 
 function Writable(options) {
+ // FIXME: There is inherits bug.
+/*
   if (!(this instanceof Writable) && !(this instanceof stream.Duplex)) {
     return new Writable(options);
   }
+*/
 
   this._writableState = new WritableState(options);
 
@@ -55,7 +58,7 @@ Writable.prototype.write = function(chunk, callback) {
   var res = false;
 
   if (state.ended) {
-    writeAfterEnd(this, callback);
+    //writeAfterEnd(this, callback);
   } else {
     res = writeOrBuffer(this, chunk, callback);
   }
@@ -102,14 +105,17 @@ function writeOrBuffer(stream, chunk, callback) {
     chunk = new Buffer(chunk);
   }
 
+/*
   if (!state.ready || state.writing || state.buffer.length > 0) {
     // stream not yet ready or there is pending request to write.
     // push this request into write queue.
-    state.buffer.push(new WriteReq(chunk, callback));
+    // state.buffer.push(new WriteReq(chunk, callback));
   } else {
     // here means there is no pending data. write out.
-    doWrite(stream, chunk, callback);
+    // doWrite(stream, chunk, callback);
   }
+*/
+  doWrite(stream, chunk, callback);
 }
 
 function writeBuffered(stream) {

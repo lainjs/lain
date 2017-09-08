@@ -1,4 +1,5 @@
 var EventEmitter = require('events');
+var stream = require('stream');
 var util = require('util');
 
 var TCP = process.binding(process.binding.tcp);
@@ -20,11 +21,16 @@ function Socket(options) {
     options = {};
   }
 
+  stream.Duplex.call(this, options);
+
   if (options.handle) {
     this._handle = options.handle;
     this._handle._socket = this;
   }
 }
+
+// Socket inherits Duplex.
+//util.inherits(Socket, stream.Duplex);
 
 Socket.prototype = new EventEmitter();
 exports.Socket = Socket;
@@ -37,6 +43,16 @@ Socket.prototype.connect = function(port, host, callback) {
   this._handle.connect(host, port, callback);
 
   return this;
+};
+
+Socket.prototype._write = function(chunk, callback) {
+}
+
+Socket.prototype.write = function(data, callback) {
+  if (!util.isString(data) && !util.isBuffer(data)) {
+    throw new TypeError('invalid argument');
+  }
+  stream.Duplex.prototype.write.call(this, data, callback);
 };
 
 Socket.prototype.destroy = function() {

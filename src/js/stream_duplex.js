@@ -1,15 +1,21 @@
+
 var util = require('util');
 var Readable = require('stream_readable');
 var Writable = require('stream_writable');
 
+
 function Duplex(options) {
+  // FIXME: There is inherits bug.
+/*
   if (!(this instanceof Duplex)) {
     return new Duplex(options);
   }
+*/
 
   Readable.call(this, options);
   Writable.call(this, options);
 }
+
 
 // Duplex inherits Redable.
 util.inherits(Duplex, Readable);
