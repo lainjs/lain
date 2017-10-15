@@ -42,6 +42,12 @@ typedef struct {
   uv_connect_t connect;
 } lainjs_tcp_connect_t;
 
+typedef struct {
+  duk_context *ctx;
+  void *callback;
+  uv_write_t write;
+} lainjs_tcp_write_t;
+
 lainjs_tcp_req_t* lainjs_create_tcp_req(duk_context *ctx) {
   lainjs_tcp_req_t *req = malloc(sizeof(lainjs_tcp_req_t));
   uv_tcp_init(lainjs_get_envronment(ctx)->loop, &req->req);
@@ -72,6 +78,13 @@ lainjs_tcp_connect_t* lainjs_create_tcp_connect(duk_context *ctx, char *callback
   connect->ctx = ctx;
   connect->callback = callback;
   return connect;
+}
+
+lainjs_tcp_write_t* lainjs_create_tcp_write(duk_context *ctx, char *callback) {
+  lainjs_tcp_write_t *write = malloc(sizeof(lainjs_tcp_write_t));
+  write->ctx = ctx;
+  write->callback = callback;
+  return write;
 }
 
 void OnShutdown(uv_shutdown_t* req, int status) {
@@ -261,9 +274,42 @@ int Bind(duk_context *ctx) {
   if (!result) {
     JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_tcp_req_t* tcp_req)
     result = uv_tcp_bind(&tcp_req->req,
-                      (const struct sockaddr*)&addr,
-                      0);
+                         (const struct sockaddr*)&addr,
+                         0);
   } 
+  JS_PUSH_INT(result)
+
+  return 1;
+}
+
+void AfterWrite(uv_write_t* req, int status) {
+  // TODO: Write this function in order to process
+  // after calling write.
+}
+
+int WriteTCP(duk_context *ctx) {
+  JS_GET_FUNCTION_ARGS_LENGS(args_lens)
+  assert(args_lens == 2);
+  assert(JS_IS_OBJECT(0));
+  assert(JS_IS_FUNCTION(1));
+  JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_tcp_req_t* tcp_req)
+  JS_GET_STRING_FROM_OBJECT(0, msg)
+
+  char* object_id = lainjs_gen_key_on_stach(ctx);
+  lainjs_binding_index_on_stash(ctx, 1, object_id);
+  lainjs_tcp_write_t *write = lainjs_create_tcp_write(ctx, object_id);
+  write->write.data = write;
+
+  uv_buf_t buf;
+  buf.base = (char*)msg;
+  buf.len = strlen(msg);
+
+  int result = uv_write(&write->write,
+                        (uv_stream_t*)&tcp_req->req,
+                        &buf,
+                        1,
+                        AfterWrite);
+
   JS_PUSH_INT(result)
 
   return 1;
@@ -297,4 +343,5 @@ void lainjs_init_tcp(duk_context *ctx) {
   lainjs_binding_func_on_top(ctx, Connect, "connect");
   lainjs_binding_func_on_top(ctx, Listen, "listen");
   lainjs_binding_func_on_top(ctx, ReadStart, "readStart");
+  lainjs_binding_func_on_top(ctx, WriteTCP, "doWrite");
 }

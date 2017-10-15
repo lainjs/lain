@@ -75,6 +75,9 @@ typedef int (*JS_NATIVE_CALLBACK)(duk_context*);
 #define JS_GET_STRING(idx, var) \
   const char* var = duk_get_string(ctx, idx);
 
+#define JS_GET_STRING_FROM_OBJECT(idx, var) \
+  const char* var = duk_safe_to_string(ctx, idx);
+
 #define JS_GET_FUNCTION_ARGS_LENGS(name) \
   unsigned long name = duk_get_top(ctx);
 

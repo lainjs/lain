@@ -46,6 +46,7 @@ Socket.prototype.connect = function(port, host, callback) {
 };
 
 Socket.prototype._write = function(chunk, callback) {
+  this._handle.doWrite(chunk, callback);
 }
 
 Socket.prototype.write = function(data, callback) {

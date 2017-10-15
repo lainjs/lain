@@ -49,6 +49,9 @@ int Write(duk_context *ctx) {
     *(buffer + offset + i) = *(str + i);
   }
 
+  // FIXME: Support unicode. :P
+  buffer[length] = '\0';
+
   JS_PUSH_INT(length)
  
   return 1;
@@ -129,7 +132,7 @@ int lainjs_buffer_binding_alloc(duk_context *ctx) {
   assert(duk_is_number(ctx, 1));
 
   JS_GET_NUMBER(1, length)
-  char* buffer = lainjs_alloc_char_buffer(length);
+  char* buffer = lainjs_alloc_char_buffer(length + 1);
 
   lainjs_binding_native_on_index(ctx, 0, buffer, "##native##");
   lainjs_binding_get_object_on_index(ctx, 0, "##native##");
