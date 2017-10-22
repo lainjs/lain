@@ -180,8 +180,51 @@ int Listen(duk_context *ctx) {
   return 1;
 }
 
+void OnAlloc(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+  buf->base = lainjs_alloc_char_buffer(suggested_size);
+  buf->len = suggested_size;
+}
+
+void OnRead(uv_stream_t* handle, ssize_t nread, const uv_buf_t* buf) {
+  lainjs_tcp_req_t* tcp_req = (lainjs_tcp_req_t*)(handle->data);
+  duk_context *ctx = tcp_req->ctx;
+
+  // Create Buffer and copy data.
+  lainjs_internal_create_buffer(ctx, nread, buf->base);
+
+  JS_PUSH_INT(nread)
+
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_onread");
+
+  lainjs_func_t *func = lainjs_create_func_t();
+  lainjs_set_function(func, -1);
+  lainjs_add_argument(func, -2);
+  lainjs_add_argument(func, -3);
+  lainjs_add_argument(func, -4);
+
+  lainjs_call_mathod(ctx, func, LAIN_TRUE);
+  lainjs_free_func_t(func);
+}
+
 int ReadStart(duk_context *ctx) {
-  // TODO: start reading data.
+  JS_GET_NATIVE_OBJECT_ON_THIS(lainjs_tcp_req_t* tcp_req)
+
+  int err = uv_read_start(
+      (uv_stream_t*)&tcp_req->req,
+      OnAlloc,
+      OnRead);
+
+  JS_PUSH_INT(err)
+
   return 1;
 }
 

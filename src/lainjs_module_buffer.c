@@ -27,6 +27,25 @@
 #include "lainjs_module_buffer.h"
 #include "lainjs_util.h"
 
+void lainjs_internal_create_buffer(duk_context *ctx, ssize_t nread, char *data) {
+  JS_GET_GLOBAL_OBJECT
+  lainjs_binding_get_object_on_index_and_remove_index(ctx, -1,
+                                                      "Buffer");
+  JS_PUSH_INT(nread)
+  duk_new(ctx, 1);
+
+  JS_GET_NATIVE_OBJECT_ON_INDEX(-1, char* buffer)
+  assert(buffer != NULL);
+
+
+  int i;
+  for (i = 0; i < nread; ++i) {
+    *(buffer + i) = *(data + i);
+  }
+
+  buffer[nread] = '\0';
+}
+
 int Write(duk_context *ctx) {
   JS_GET_FUNCTION_ARGS_LENGS(args_lens)
   assert(args_lens == 3);

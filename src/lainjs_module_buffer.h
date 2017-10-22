@@ -23,4 +23,6 @@
 #define LAINJS_MODULE_BUFFER_H
 #include "lainjs_binding.h"
 void lainjs_init_buffer(duk_context *ctx);
+
+void lainjs_internal_create_buffer(duk_context *ctx, ssize_t nread, char *data);
 #endif

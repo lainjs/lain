@@ -68,6 +68,14 @@ Socket.prototype._onconnect = function() {
   this._handle.readStart();
 };
 
+Socket.prototype._onread = function(nread, buffer) {
+  var err = null;
+  if (nread < 0) {
+    err = new Error('read error: ' + nread);
+  }
+  this.emit('read', err, buffer);
+};
+
 Socket.prototype._onclose = function() {
   this.emit('close');
 };
