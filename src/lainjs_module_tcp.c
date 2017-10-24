@@ -328,6 +328,25 @@ int Bind(duk_context *ctx) {
 void AfterWrite(uv_write_t* req, int status) {
   // TODO: Write this function in order to process
   // after calling write.
+  lainjs_tcp_write_t* write = (lainjs_tcp_write_t*)(req->data);
+  lainjs_tcp_req_t* tcp_req = (lainjs_tcp_req_t*)(req->handle->data);
+  duk_context *ctx = tcp_req->ctx;
+
+  JS_PUSH_INT(status)
+
+  lainjs_binding_get_object_on_stash(ctx, tcp_req->target);
+  lainjs_binding_get_object_on_index_and_remove_index(ctx,
+                                                      -1, "_socket");
+
+  lainjs_binding_get_object_on_stash(ctx, write->callback);
+
+  lainjs_func_t *func = lainjs_create_func_t();
+  lainjs_set_function(func, -1);
+  lainjs_add_argument(func, -2);
+  lainjs_add_argument(func, -3);
+  lainjs_call_mathod(ctx, func, LAIN_TRUE);
+
+  lainjs_free_func_t(func);
 }
 
 int WriteTCP(duk_context *ctx) {
