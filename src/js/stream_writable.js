@@ -56,7 +56,6 @@ util.inherits(Writable, Stream);
 Writable.prototype.write = function(chunk, callback) {
   var state = this._writableState;
   var res = false;
-
   if (state.ended) {
     //writeAfterEnd(this, callback);
   } else {
@@ -129,10 +128,11 @@ function writeBuffered(stream) {
 function doWrite(stream, chunk, callback) {
   var state = stream._writableState;
 
+/*
   if (state.writing) {
     return new Error('write during writing');
   }
-
+*/
   // The stream is now writing.
   state.writing = true;
 
